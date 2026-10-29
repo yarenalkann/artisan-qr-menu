@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Aura • Artisan QR & Realtime KDS</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- QRCode CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <!-- Supabase JS Client -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #0b0f0e;
+      color: #e1e7e4;
+    }
+    .font-serif-title {
+      font-family: 'Playfair Display', serif;
+    }
+    .glass-card {
+      background: rgba(18, 26, 24, 0.7);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+    }
+    .glow-amber {
+      box-shadow: 0 0 25px -5px rgba(217, 119, 6, 0.3);
+    }
+    .glow-matcha {
+      box-shadow: 0 0 25px -5px rgba(16, 185, 129, 0.25);
+    }
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    @keyframes pulse-ring {
+      0% { transform: scale(0.95); opacity: 0.8; }
+      50% { transform: scale(1.05); opacity: 0.3; }
+      100% { transform: scale(0.95); opacity: 0.8; }
+    }
+    .pulse-amber {
+      animation: pulse-ring 2s infinite ease-in-out;
+    }
+  </style>
+</head>
+<body class="min-h-screen selection:bg-amber-500/30 selection:text-amber-200">
+
+  <!-- TOP APP SWITCHER (SaaS Navigation Bar) -->
+  <header class="sticky top-0 z-50 bg-[#0e1412]/90 backdrop-blur-md border-b border-emerald-950/60 px-4 py-2.5">
+    <div class="max-w-6xl mx-auto flex items-center justify-between gap-3">
+      <div class="flex items-center gap-2">
+        <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-amber-600 to-emerald-600 flex items-center justify-center font-serif-title font-bold text-white text-base shadow-sm">
+          A
+        </div>
+        <div>
+          <span class="font-serif-title text-base font-bold text-white tracking-wide">AURA</span>
+          <span class="text-[10px] text-emerald-400 block -mt-1 font-mono tracking-widest">ARTISAN CAFE</span>
+        </div>
+      </div>
+
+      <!-- Views Switcher -->
+      <nav class="flex items-center p-1 bg-black/40 rounded-xl border border-white/5 text-xs font-medium">
+        <button id="nav-btn-customer" onclick="switchView('customer')" class="px-3 py-1.5 rounded-lg transition-all text-white bg-emerald-600/80 shadow">
+          📱 Müşteri Menüsü
+        </button>
+        <button id="nav-btn-kitchen" onclick="switchView('kitchen')" class="px-3 py-1.5 rounded-lg transition-all text-neutral-400 hover:text-white flex items-center gap-1.5">
+          👨‍🍳 Barista / Mutfak
+          <span id="kitchen-badge" class="hidden px-1.5 py-0.2 text-[10px] bg-amber-500 text-black font-bold rounded-full">0</span>
+        </button>
+        <button id="nav-btn-qrcodes" onclick="switchView('qrcodes')" class="px-3 py-1.5 rounded-lg transition-all text-neutral-400 hover:text-white">
+          🖨️ Masa QR'ları
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ================= VIEW 1: CUSTOMER MENU ================= -->
+  <main id="view-customer" class="max-w-md mx-auto pb-32 pt-3 px-4 transition-all">
+    
+    <!-- Table Header Info Bar -->
+    <div class="glass-card rounded-2xl p-3.5 mb-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
+          <i data-lucide="coffee" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h2 class="text-sm font-bold text-white tracking-wide" id="display-table-num">MASA 04</h2>
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Canlı Menü
+            </span>
+          </div>
+          <p class="text-xs text-neutral-400">Siparişleriniz anında baristaya iletilir</p>
+        </div>
+      </div>
+      
+      <!-- Quick Table Selector for Testing -->
+      <select id="table-selector" onchange="changeTable(this.value)" class="bg-[#16201d] text-xs text-amber-300 font-semibold px-2 py-1.5 rounded-lg border border-amber-500/30 outline-none">
+        <option value="1">Masa 01</option>
+        <option value="2">Masa 02</option>
+        <option value="3">Masa 03</option>
+        <option value="4" selected>Masa 04</option>
+        <option value="5">Masa 05</option>
+      </select>
+    </div>
+
+    <!-- Quick Waiter & Bill Actions -->
+    <div class="grid grid-cols-2 gap-2 mb-5">
+      <button onclick="callService('waiter')" class="py-2.5 px-3 rounded-xl bg-[#141d1a] border border-white/5 hover:border-amber-500/40 text-neutral-300 hover:text-white flex items-center justify-center gap-2 text-xs font-semibold transition active:scale-95 shadow-sm">
+        <i data-lucide="bell" class="w-4 h-4 text-amber-400"></i>
+        Garson Çağır
+      </button>
+      <button onclick="callService('bill_card')" class="py-2.5 px-3 rounded-xl bg-[#141d1a] border border-white/5 hover:border-emerald-500/40 text-neutral-300 hover:text-white flex items-center justify-center gap-2 text-xs font-semibold transition active:scale-95 shadow-sm">
+        <i data-lucide="receipt" class="w-4 h-4 text-emerald-400"></i>
+        Hesap İste (Kart/Nakit)
+      </button>
+    </div>
+
+    <!-- Vibe / Flavor Matcher (Interactive Compass) -->
+    <div class="glass-card rounded-2xl p-4 mb-6 relative overflow-hidden border-emerald-500/20">
+      <div class="absolute -right-6 -bottom-6 w-28 h-28 bg-emerald-500/10 rounded-full blur-2xl"></div>
+      <div class="flex items-center gap-2 mb-2">
+        <i data-lucide="sparkles" class="w-4 h-4 text-amber-400"></i>
+        <h3 class="text-xs font-bold uppercase tracking-wider text-neutral-300">Günün Lezzet Pusulası</h3>
+      </div>
+      <p class="text-xs text-neutral-400 mb-3">Şu an modun nasıl? Sana en uygun içeceği eşleştirelim:</p>
+      
+      <div class="flex gap-2 overflow-x-auto no-scrollbar pb-1" id="vibe-pills">
+        <button onclick="filterByVibe('all')" class="vibe-btn active whitespace-nowrap px-3 py-1.5 rounded-full text-xs font-medium bg-emerald-600 text-white transition">Tümü</button>
+        <button onclick="filterByVibe('Enerjik')" class="vibe-btn whitespace-nowrap px-3 py-1.5 rounded-full text-xs font-medium bg-white/5 text-neutral-300 hover:bg-white/10 transition">⚡ Yüksek Enerji</button>
+        <button onclick="filterByVibe('Tatlı')" class="vibe-btn whitespace-nowrap px-3 py-1.5 rounded-full text-xs font-medium bg-white/5 text-neutral-300 hover:bg-white/10 transition">🍫 Tatlı & Şımartıcı</button>
+        <button onclick="filterByVibe('Ferahlatıcı')" class="vibe-btn whitespace-nowrap px-3 py-1.5 rounded-full text-xs font-medium bg-white/5 text-neutral-300 hover:bg-white/10 transition">🍃 Buz Gibi & Ferah</button>
+        <button onclick="filterByVibe('Sıcak')" class="vibe-btn whitespace-nowrap px-3 py-1.5 rounded-full text-xs font-medium bg-white/5 text-neutral-300 hover:bg-white/10 transition">☕ Klasik & Sıcak</button>
+      </div>
+    </div>
+
+    <!-- Category Tabs -->
+    <div class="flex gap-2 overflow-x-auto no-scrollbar mb-4" id="category-tabs">
+      <button onclick="selectCategory(null)" class="cat-pill active px-4 py-2 rounded-xl text-xs font-semibold bg-amber-500/20 text-amber-400 border border-amber-500/30 whitespace-nowrap">Hepsi</button>
+      <div id="dynamic-category-pills" class="flex gap-2"></div>
+    </div>
+
+    <!-- Products List Grid -->
+    <div id="products-grid" class="space-y-3.5">
+      <!-- Loading State Skeleton -->
+      <div class="glass-card rounded-2xl p-4 animate-pulse flex gap-4">
+        <div class="w-24 h-24 bg-white/5 rounded-xl"></div>
+        <div class="flex-1 space-y-2 py-1">
+          <div class="h-4 bg-white/10 rounded w-3/4"></div>
+          <div class="h-3 bg-white/5 rounded w-full"></div>
+          <div class="h-4 bg-white/10 rounded w-1/4 mt-4"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Sticky Bottom Basket Floating Bar -->
+  <div id="basket-bar" class="fixed bottom-0 left-0 right-0 z-40 p-4 bg-gradient-to-t from-[#0b0f0e] via-[#0b0f0e]/95 to-transparent pointer-events-none">
+    <div class="max-w-md mx-auto pointer-events-auto">
+      <div class="glass-card rounded-2xl p-3 glow-matcha border-emerald-500/30 flex items-center justify-between shadow-2xl">
+        <div class="flex items-center gap-3 pl-2">
+          <div class="w-10 h-10 rounded-xl bg-emerald-500 text-black flex items-center justify-center font-bold text-sm shadow">
+            <span id="basket-count">0</span>
+          </div>
+          <div>
+            <div class="text-[11px] text-neutral-400 uppercase tracking-wider font-semibold">Masa Tepsisi</div>
+            <div class="text-sm font-bold text-white font-mono" id="basket-total">0.00 ₺</div>
+          </div>
+        </div>
+        <button onclick="submitOrder()" id="btn-submit-order" class="px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-xs tracking-wide transition active:scale-95 flex items-center gap-1.5 shadow-lg shadow-emerald-500/20">
+          <span>Siparişi İlet</span>
+          <i data-lucide="arrow-right" class="w-4 h-4"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= VIEW 2: KITCHEN / BARISTA DISPLAY (KDS) ================= -->
+  <main id="view-kitchen" class="max-w-6xl mx-auto p-4 hidden">
+    <!-- Barista Header Status -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 glass-card p-4 rounded-2xl mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400">
+          <i data-lucide="flame" class="w-6 h-6"></i>
+        </div>
+        <div>
+          <h2 class="text-base font-bold text-white">Barista & Mutfak Canlı Ekranı</h2>
+          <p class="text-xs text-neutral-400">Masalardan düşen sipariş ve çağrılar anında sesli bildirimle listelenir.</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        <span class="inline-flex items-center gap-1.5 text-xs font-mono text-emerald-400 bg-emerald-950/40 px-3 py-1.5 rounded-xl border border-emerald-800/40">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span> Realtime Aktif
+        </span>
+        <button onclick="fetchKitchenData()" class="px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-xs text-white border border-white/10 flex items-center gap-1.5">
+          <i data-lucide="rotate-cw" class="w-3.5 h-3.5"></i> Yenile
+        </button>
+      </div>
+    </div>
+
+    <!-- Active Service Calls (Waiters / Bills) -->
+    <div id="service-calls-container" class="mb-6 space-y-2 hidden">
+      <h3 class="text-xs font-bold uppercase tracking-wider text-amber-400 flex items-center gap-2">
+        <i data-lucide="bell-ring" class="w-4 h-4"></i> Acil Masa Çağrıları
+      </h3>
+      <div id="service-calls-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3"></div>
+    </div>
+
+    <!-- Order Cards Grid -->
+    <div class="space-y-3">
+      <h3 class="text-xs font-bold uppercase tracking-wider text-neutral-400 flex items-center gap-2">
+        <i data-lucide="clock" class="w-4 h-4 text-emerald-400"></i> Aktif Siparişler
+      </h3>
+      <div id="kitchen-orders-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <!-- Injected dynamically -->
+      </div>
+    </div>
+  </main>
+
+  <!-- ================= VIEW 3: TABLE QR GENERATOR ================= -->
+  <main id="view-qrcodes" class="max-w-5xl mx-auto p-4 hidden">
+    <div class="glass-card p-5 rounded-2xl mb-6">
+      <h2 class="text-base font-bold text-white mb-1">Masaüstü QR Stand Şablonları</h2>
+      <p class="text-xs text-neutral-400">Her masa için özel kodlanmış QR standları. Bu sayfayı doğrudan yazdırabilir ya da görsel olarak kaydedebilirsiniz.</p>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6" id="qr-stands-grid">
+      <!-- Generated via JS -->
+    </div>
+  </main>
+
+  <!-- Notification Toast -->
+  <div id="toast" class="fixed top-16 left-1/2 -translate-x-1/2 z-50 transition-all duration-300 opacity-0 pointer-events-none glass-card border-amber-500/40 text-amber-300 px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 shadow-xl">
+    <i data-lucide="check-circle" class="w-4 h-4 text-amber-400"></i>
+    <span id="toast-msg">İşlem başarılı</span>
+  </div>
+
+  <script>
+    // ================= SUPABASE CONFIGURATION =================
+    const SUPABASE_URL = 'https://omxrltiokpwryaxxuhvp.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_E_n7TU4IkWVZh0Ms7k5j3A_qW37jPAL';
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    // State Variables
+    let currentTable = 4;
+    let products = [];
+    let categories = [];
+    let basket = [];
+    let selectedCat = null;
+    let selectedVibe = 'all';
+
+    // Simple Audio Synthesizer for Kitchen Bell
+    function playKitchenBell() {
+      try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(880, audioCtx.currentTime); // A5 note
+        osc.frequency.exponentialRampToValueAtTime(440, audioCtx.currentTime + 0.6);
+        gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.6);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.6);
+      } catch (e) {
+        console.warn('Audio not allowed without gesture', e);
+      }
+    }
+
+    // Toast Alert
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toast-msg').innerText = msg;
+      toast.classList.remove('opacity-0', 'pointer-events-none');
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'pointer-events-none');
+      }, 3000);
+    }
+
+    // View Navigation Switcher
+    function switchView(view) {
+      document.getElementById('view-customer').classList.add('hidden');
+      document.getElementById('view-kitchen').classList.add('hidden');
+      document.getElementById('view-qrcodes').classList.add('hidden');
+
+      ['customer', 'kitchen', 'qrcodes'].forEach(v => {
+        const btn = document.getElementById(`nav-btn-${v}`);
+        btn.classList.remove('bg-emerald-600/80', 'text-white', 'shadow');
+        btn.classList.add('text-neutral-400');
+      });
+
+      const activeBtn = document.getElementById(`nav-btn-${view}`);
+      activeBtn.classList.add('bg-emerald-600/80', 'text-white', 'shadow');
+      activeBtn.classList.remove('text-neutral-400');
+
+      document.getElementById(`view-${view}`).classList.remove('hidden');
+
+      if (view === 'kitchen') {
+        fetchKitchenData();
+      } else if (view === 'qrcodes') {
+        renderQRStands();
+      }
+      lucide.createIcons();
+    }
+
+    function changeTable(num) {
+      currentTable = parseInt(num);
+      document.getElementById('display-table-num').innerText = `MASA ${currentTable < 10 ? '0' + currentTable : currentTable}`;
+      showToast(`Masa ${currentTable} olarak ayarlandı.`);
+    }
+
+    // ================= DATA FETCHING (SUPABASE) =================
+    async function initApp() {
+      // Check URL parameters for Table: ?table=X
+      const urlParams = new URLSearchParams(window.location.search);
+      const urlTable = urlParams.get('table');
+      if (urlTable) {
+        currentTable = parseInt(urlTable);
+        const sel = document.getElementById('table-selector');
+        if (sel) sel.value = currentTable;
+        document.getElementById('display-table-num').innerText = `MASA ${currentTable < 10 ? '0' + currentTable : currentTable}`;
+      }
+
+      await loadCategoriesAndProducts();
+      setupRealtimeSubscriptions();
+      lucide.createIcons();
+    }
+
+    async function loadCategoriesAndProducts() {
+      try {
+        const [catsRes, prodsRes] = await Promise.all([
+          supabaseClient.from('categories').select('*').order('order_index'),
+          supabaseClient.from('products').select('*').eq('is_available', true)
+        ]);
+
+        if (catsRes.data) categories = catsRes.data;
+        if (prodsRes.data) products = prodsRes.data;
+
+        renderCategories();
+        renderProducts();
+      } catch (err) {
+        console.error('Veri yükleme hatası:', err);
+      }
+    }
+
+    // Render Categories
+    function renderCategories() {
+      const container = document.getElementById('dynamic-category-pills');
+      container.innerHTML = categories.map(cat => `
+        <button onclick="selectCategory(${cat.id})" class="cat-pill px-4 py-2 rounded-xl text-xs font-semibold bg-white/5 text-neutral-400 hover:text-white border border-white/5 whitespace-nowrap transition">
+          ${cat.icon || '☕'} ${cat.name}
+        </button>
+      `).join('');
+    }
+
+    function selectCategory(id) {
+      selectedCat = id;
+      document.querySelectorAll('.cat-pill').forEach(btn => {
+        btn.classList.remove('bg-amber-500/20', 'text-amber-400', 'border-amber-500/30');
+        btn.classList.add('bg-white/5', 'text-neutral-400', 'border-white/5');
+      });
+      event.currentTarget.classList.add('bg-amber-500/20', 'text-amber-400', 'border-amber-500/30');
+      event.currentTarget.classList.remove('bg-white/5', 'text-neutral-400', 'border-white/5');
+      renderProducts();
+    }
+
+    function filterByVibe(vibe) {
+      selectedVibe = vibe;
+      document.querySelectorAll('.vibe-btn').forEach(btn => {
+        btn.classList.remove('bg-emerald-600', 'text-white');
+        btn.classList.add('bg-white/5', 'text-neutral-300');
+      });
+      event.currentTarget.classList.add('bg-emerald-600', 'text-white');
+      event.currentTarget.classList.remove('bg-white/5', 'text-neutral-300');
+      renderProducts();
+    }
+
+    // Render Product Cards
+    function renderProducts() {
+      const container = document.getElementById('products-grid');
+      let filtered = products;
+
+      if (selectedCat !== null) {
+        filtered = filtered.filter(p => p.category_id === selectedCat);
+      }
+      if (selectedVibe !== 'all') {
+        filtered = filtered.filter(p => p.vibes && p.vibes.includes(selectedVibe));
+      }
+
+      if (filtered.length === 0) {
+        container.innerHTML = `<div class="glass-card rounded-2xl p-6 text-center text-xs text-neutral-400">Bu filtreye uygun lezzet bulunamadı.</div>`;
+        return;
+      }
+
+      container.innerHTML = filtered.map(p => `
+        <div class="glass-card rounded-2xl p-3.5 flex gap-3.5 items-center hover:border-emerald-500/30 transition group">
+          <img src="${p.image_url || 'https://images.unsplash.com/photo-1541167760496-1628856ab772?w=400'}" class="w-20 h-20 rounded-xl object-cover border border-white/5 group-hover:scale-105 transition duration-300" alt="${p.name}">
+          
+          <div class="flex-1 min-w-0">
+            <h4 class="text-sm font-bold text-white truncate tracking-wide">${p.name}</h4>
+            <p class="text-[11px] text-neutral-400 line-clamp-1 mt-0.5">${p.description || ''}</p>
+            
+            <!-- Tasting Notes -->
+            <div class="flex flex-wrap gap-1 mt-2">
+              ${(p.tasting_notes || []).map(note => `
+                <span class="px-2 py-0.5 rounded-md bg-white/5 text-[9px] text-amber-300/80 font-medium">${note}</span>
+              `).join('')}
+            </div>
+
+            <div class="flex items-center justify-between mt-2.5">
+              <span class="text-xs font-mono font-bold text-emerald-400">${parseFloat(p.price).toFixed(2)} ₺</span>
+              <button onclick="addToBasket(${p.id})" class="px-3 py-1 rounded-lg bg-white/10 hover:bg-emerald-500 hover:text-black text-neutral-200 text-xs font-semibold transition active:scale-90 flex items-center gap-1">
+                <i data-lucide="plus" class="w-3.5 h-3.5"></i> Ekle
+              </button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+      lucide.createIcons();
+    }
+
+    // Basket Handlers
+    function addToBasket(productId) {
+      const prod = products.find(p => p.id === productId);
+      if (!prod) return;
+      
+      const existing = basket.find(item => item.product.id === productId);
+      if (existing) {
+        existing.quantity += 1;
+      } else {
+        basket.push({ product: prod, quantity: 1, notes: '' });
+      }
+      updateBasketUI();
+      showToast(`${prod.name} masaya eklendi.`);
+    }
+
+    function updateBasketUI() {
+      const count = basket.reduce((acc, item) => acc + item.quantity, 0);
+      const total = basket.reduce((acc, item) => acc + (item.quantity * parseFloat(item.product.price)), 0);
+
+      document.getElementById('basket-count').innerText = count;
+      document.getElementById('basket-total').innerText = total.toFixed(2) + ' ₺';
+
+      const bar = document.getElementById('basket-bar');
+      if (count > 0) {
+        bar.classList.remove('opacity-0', 'translate-y-8');
+      }
+    }
+
+    // Submit Order to Supabase
+    async function submitOrder() {
+      if (basket.length === 0) return;
+      const btn = document.getElementById('btn-submit-order');
+      btn.disabled = true;
+      btn.innerHTML = `<span>İletiliyor...</span>`;
+
+      const totalAmount = basket.reduce((acc, item) => acc + (item.quantity * parseFloat(item.product.price)), 0);
+
+      try {
+        const { data: orderData, error: orderErr } = await supabaseClient
+          .from('orders')
+          .insert([{ table_number: currentTable, total_amount: totalAmount, status: 'pending' }])
+          .select();
+
+        if (orderErr) throw orderErr;
+        const newOrderId = orderData[0].id;
+
+        const orderItems = basket.map(item => ({
+          order_id: newOrderId,
+          product_name: item.product.name,
+          quantity: item.quantity,
+          unit_price: item.product.price,
+          notes: item.notes || ''
+        }));
+
+        await supabaseClient.from('order_items').insert(orderItems);
+
+        showToast(`🎉 Siparişiniz Mutfak & Baristaya İletildi!`);
+        basket = [];
+        updateBasketUI();
+      } catch (err) {
+        console.error(err);
+        showToast('Sipariş iletilirken hata oluştu.');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<span>Siparişi İlet</span><i data-lucide="arrow-right" class="w-4 h-4"></i>`;
+        lucide.createIcons();
+      }
+    }
+
+    // Service Calls (Garson & Hesap İste)
+    async function callService(type) {
+      try {
+        await supabaseClient.from('service_calls').insert([{
+          table_number: currentTable,
+          call_type: type,
+          is_resolved: false
+        }]);
+
+        if (type === 'waiter') {
+          showToast(`🔔 Garson çağrısı iletildi. Geliyoruz!`);
+        } else {
+          showToast(`💳 Hesap talebi kasaya iletildi.`);
+        }
+      } catch (err) {
+        console.error(err);
+        showToast('İstek gönderilemedi.');
+      }
+    }
+
+    // ================= KITCHEN DISPLAY SYSTEM (KDS) =================
+    async function fetchKitchenData() {
+      try {
+        const [ordersRes, callsRes] = await Promise.all([
+          supabaseClient.from('orders').select('*, order_items(*)').neq('status', 'completed').order('created_at', { ascending: false }),
+          supabaseClient.from('service_calls').select('*').eq('is_resolved', false).order('created_at', { ascending: false })
+        ]);
+
+        renderKitchenOrders(ordersRes.data || []);
+        renderServiceCalls(callsRes.data || []);
+      } catch (err) {
+        console.error('Mutfak verisi çekilemedi:', err);
+      }
+    }
+
+    function renderKitchenOrders(orders) {
+      const container = document.getElementById('kitchen-orders-grid');
+      const badge = document.getElementById('kitchen-badge');
+
+      if (orders.length > 0) {
+        badge.innerText = orders.length;
+        badge.classList.remove('hidden');
+      } else {
+        badge.classList.add('hidden');
+      }
+
+      if (orders.length === 0) {
+        container.innerHTML = `<div class="col-span-full glass-card p-8 text-center text-xs text-neutral-400">Bekleyen sipariş yok. Bütün fincanlar dolu! ✨</div>`;
+        return;
+      }
+
+      container.innerHTML = orders.map(ord => {
+        const timeAgo = new Date(ord.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        const isPreparing = ord.status === 'preparing';
+
+        return `
+          <div class="glass-card rounded-2xl p-4 border ${isPreparing ? 'border-amber-500/50 glow-amber' : 'border-white/10'} flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between pb-3 border-b border-white/5 mb-3">
+                <div class="flex items-center gap-2">
+                  <span class="text-sm font-black text-white px-2.5 py-1 rounded-lg bg-white/10">MASA ${ord.table_number < 10 ? '0' + ord.table_number : ord.table_number}</span>
+                  <span class="text-[10px] text-neutral-400 font-mono">${timeAgo}</span>
+                </div>
+                <span class="text-xs font-mono font-bold text-emerald-400">${parseFloat(ord.total_amount).toFixed(2)} ₺</span>
+              </div>
+
+              <!-- Item List -->
+              <div class="space-y-2 mb-4">
+                ${(ord.order_items || []).map(item => `
+                  <div class="flex items-center justify-between text-xs">
+                    <span class="text-neutral-200 font-medium"><strong class="text-amber-400 mr-1.5">${item.quantity}x</strong> ${item.product_name}</span>
+                    <span class="text-[10px] text-neutral-400">${item.notes || ''}</span>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="grid grid-cols-2 gap-2 pt-2 border-t border-white/5">
+              ${ord.status === 'pending' ? `
+                <button onclick="updateOrderStatus(${ord.id}, 'preparing')" class="py-2 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 text-xs font-bold transition">
+                  Hazırlanıyor
+                </button>
+              ` : `
+                <button onclick="updateOrderStatus(${ord.id}, 'served')" class="py-2 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 text-xs font-bold transition">
+                  Servis Edildi
+                </button>
+              `}
+              <button onclick="updateOrderStatus(${ord.id}, 'completed')" class="py-2 rounded-xl bg-white/5 hover:bg-white/10 text-neutral-400 hover:text-white text-xs font-medium transition">
+                Tamamla
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderServiceCalls(calls) {
+      const container = document.getElementById('service-calls-container');
+      const list = document.getElementById('service-calls-list');
+
+      if (calls.length === 0) {
+        container.classList.add('hidden');
+        return;
+      }
+      container.classList.remove('hidden');
+
+      list.innerHTML = calls.map(c => `
+        <div class="glass-card p-3 rounded-xl border border-amber-500/40 bg-amber-950/20 flex items-center justify-between">
+          <div class="flex items-center gap-2.5">
+            <span class="w-2 h-2 rounded-full bg-amber-400 pulse-amber"></span>
+            <div>
+              <div class="text-xs font-bold text-white">MASA ${c.table_number}</div>
+              <div class="text-[10px] text-amber-300 font-medium">${c.call_type === 'waiter' ? '🔔 Garson Çağırıyor' : '💳 Hesap İstiyor'}</div>
+            </div>
+          </div>
+          <button onclick="resolveCall(${c.id})" class="px-2.5 py-1 rounded-lg bg-amber-500 hover:bg-amber-400 text-black text-[11px] font-bold transition">
+            Yanıtla
+          </button>
+        </div>
+      `).join('');
+    }
+
+    async function updateOrderStatus(id, newStatus) {
+      await supabaseClient.from('orders').update({ status: newStatus }).eq('id', id);
+      fetchKitchenData();
+    }
+
+    async function resolveCall(id) {
+      await supabaseClient.from('service_calls').update({ is_resolved: true }).eq('id', id);
+      fetchKitchenData();
+    }
+
+    // ================= REALTIME WEBSOCKET SUBSCRIPTION =================
+    function setupRealtimeSubscriptions() {
+      supabaseClient
+        .channel('realtime_kitchen')
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'orders' }, payload => {
+          playKitchenBell();
+          showToast(`🔔 Yeni Sipariş: Masa ${payload.new.table_number}!`);
+          fetchKitchenData();
+        })
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'service_calls' }, payload => {
+          playKitchenBell();
+          showToast(`⚠️ Masa ${payload.new.table_number} çağrıda bulundu!`);
+          fetchKitchenData();
+        })
+        .subscribe();
+    }
+
+    // ================= TABLE QR STANDS GENERATOR =================
+    function renderQRStands() {
+      const container = document.getElementById('qr-stands-grid');
+      container.innerHTML = '';
+      const baseUrl = window.location.origin + window.location.pathname;
+
+      [1, 2, 3, 4, 5].forEach(tableNum => {
+        const tableUrl = `${baseUrl}?table=${tableNum}`;
+        const card = document.createElement('div');
+        card.className = "glass-card rounded-3xl p-6 text-center border border-white/10 flex flex-col items-center shadow-xl";
+        card.innerHTML = `
+          <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-amber-600 to-emerald-600 flex items-center justify-center font-serif-title font-bold text-white text-sm mb-2">A</div>
+          <h3 class="font-serif-title text-base font-bold text-white tracking-wide">AURA ARTISAN</h3>
+          <p class="text-[10px] text-neutral-400 mb-4 tracking-widest uppercase">Canlı Temassız Menü</p>
+          
+          <div class="p-3 bg-white rounded-2xl shadow-inner mb-4" id="qrcode-box-${tableNum}"></div>
+
+          <div class="text-xs font-mono font-bold text-amber-400 bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/20 mb-2">
+            MASA 0${tableNum}
+          </div>
+          <p class="text-[10px] text-neutral-400">Telefon kamerasıyla okutunuz</p>
+        `;
+        container.appendChild(card);
+
+        new QRCode(document.getElementById(`qrcode-box-${tableNum}`), {
+          text: tableUrl,
+          width: 140,
+          height: 140,
+          colorDark: "#0b0f0e",
+          colorLight: "#ffffff",
+          correctLevel: QRCode.CorrectLevel.H
+        });
+      });
+    }
+
+    // Start App
+    window.addEventListener('DOMContentLoaded', initApp);
+  </script>
+</body>
+</html>
