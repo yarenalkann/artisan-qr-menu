@@ -1,19 +1,16 @@
 <!DOCTYPE html>
 <html lang="tr">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Aura • Artisan QR, KDS, POS & Analytics</title>
-
+  <title>Aura • Artisan QR, KDS, POS & Admin</title>
+  
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap"
-    rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
   <!-- QRCode CDN -->
@@ -27,66 +24,45 @@
       background-color: #0b0f0e;
       color: #e1e7e4;
     }
-
     .font-serif-title {
       font-family: 'Playfair Display', serif;
     }
-
     .glass-card {
       background: rgba(18, 26, 24, 0.78);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
       border: 1px solid rgba(255, 255, 255, 0.08);
     }
-
     .glow-amber {
       box-shadow: 0 0 25px -5px rgba(217, 119, 6, 0.35);
     }
-
     .glow-matcha {
       box-shadow: 0 0 25px -5px rgba(16, 185, 129, 0.25);
     }
-
     .no-scrollbar::-webkit-scrollbar {
       display: none;
     }
-
     .no-scrollbar {
       -ms-overflow-style: none;
       scrollbar-width: none;
     }
-
     @keyframes pulse-ring {
-      0% {
-        transform: scale(0.95);
-        opacity: 0.9;
-      }
-
-      50% {
-        transform: scale(1.05);
-        opacity: 0.3;
-      }
-
-      100% {
-        transform: scale(0.95);
-        opacity: 0.9;
-      }
+      0% { transform: scale(0.95); opacity: 0.9; }
+      50% { transform: scale(1.05); opacity: 0.3; }
+      100% { transform: scale(0.95); opacity: 0.9; }
     }
-
     .pulse-amber {
       animation: pulse-ring 2s infinite ease-in-out;
     }
   </style>
 </head>
-
 <body class="min-h-screen selection:bg-amber-500/30 selection:text-amber-200">
 
   <!-- TOP HEADER -->
   <header class="sticky top-0 z-50 bg-[#0e1412]/95 backdrop-blur-md border-b border-emerald-950/60 px-4 py-2.5">
     <div class="max-w-6xl mx-auto flex items-center justify-between gap-3">
       <div class="flex items-center gap-2 cursor-pointer" onclick="switchView('customer')">
-        <div
-          class="w-8 h-8 rounded-lg bg-gradient-to-tr from-amber-600 to-emerald-600 flex items-center justify-center font-serif-title font-bold text-white text-base shadow-sm">
+        <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-amber-600 to-emerald-600 flex items-center justify-center font-serif-title font-bold text-white text-base shadow-sm">
           A
         </div>
         <div>
@@ -95,44 +71,32 @@
         </div>
       </div>
 
-      <!-- Staff Views Switcher (Müşteri modunda tamamen gizlenir) -->
-      <nav id="staff-navigation"
-        class="flex items-center gap-1.5 p-1 bg-black/40 rounded-xl border border-white/5 text-xs font-medium">
-        <button id="nav-btn-customer" onclick="switchView('customer')"
-          class="px-3 py-1.5 rounded-lg transition-all text-white bg-emerald-600/80 shadow">
+      <!-- Staff Views Switcher (Müşteri modunda gizlenir) -->
+      <nav id="staff-navigation" class="flex items-center gap-1.5 p-1 bg-black/40 rounded-xl border border-white/5 text-xs font-medium">
+        <button id="nav-btn-customer" onclick="switchView('customer')" class="px-3 py-1.5 rounded-lg transition-all text-white bg-emerald-600/80 shadow">
           📱 Menü
         </button>
-        <button id="nav-btn-kitchen" onclick="switchView('kitchen')"
-          class="px-3 py-1.5 rounded-lg transition-all text-neutral-400 hover:text-white flex items-center gap-1.5">
+        <button id="nav-btn-kitchen" onclick="switchView('kitchen')" class="px-3 py-1.5 rounded-lg transition-all text-neutral-400 hover:text-white flex items-center gap-1.5">
           👨‍🍳 Mutfak
-          <span id="kitchen-badge"
-            class="hidden px-1.5 py-0.2 text-[10px] bg-amber-500 text-black font-bold rounded-full">0</span>
+          <span id="kitchen-badge" class="hidden px-1.5 py-0.2 text-[10px] bg-amber-500 text-black font-bold rounded-full">0</span>
         </button>
-        <button id="nav-btn-pos" onclick="switchView('pos')"
-          class="px-3 py-1.5 rounded-lg transition-all text-neutral-400 hover:text-white flex items-center gap-1.5">
-          💳 Kasa & Masalar
+        <button id="nav-btn-pos" onclick="switchView('pos')" class="px-3 py-1.5 rounded-lg transition-all text-neutral-400 hover:text-white flex items-center gap-1.5">
+          💳 Kasa
         </button>
-        <button id="nav-btn-qrcodes" onclick="switchView('qrcodes')"
-          class="px-2.5 py-1.5 rounded-lg transition-all text-neutral-400 hover:text-white">
+        <button id="nav-btn-qrcodes" onclick="switchView('qrcodes')" class="px-2.5 py-1.5 rounded-lg transition-all text-neutral-400 hover:text-white">
           🖨️ QR
         </button>
-        <button id="nav-btn-admin" onclick="openAdminAuthModal()"
-          class="px-2.5 py-1.5 rounded-lg transition-all text-neutral-400 hover:text-amber-400 flex items-center gap-1 border border-white/5">
+        <button id="nav-btn-admin" onclick="openAdminAuthModal()" class="px-2.5 py-1.5 rounded-lg transition-all text-neutral-400 hover:text-amber-400 flex items-center gap-1 border border-white/5">
           <i data-lucide="lock" class="w-3.5 h-3.5"></i>
-          <span class="hidden md:inline">Yönetim</span>
         </button>
       </nav>
 
-      <!-- Customer Top Badge (Sadece müşteri masada otururken görünür) -->
+      <!-- Customer Top Badge (Masadaki müşteriye özel) -->
       <div id="customer-top-badge" class="hidden flex items-center gap-2">
-        <span
-          class="px-3 py-1 rounded-full text-xs font-bold font-mono bg-amber-500/10 text-amber-300 border border-amber-500/20"
-          id="header-table-badge">
-          MASA 04
+        <span class="px-3 py-1 rounded-full text-xs font-bold font-mono bg-amber-500/10 text-amber-300 border border-amber-500/20" id="header-table-badge">
+          MASA 01
         </span>
-        <!-- Gizli personel kilit butonu -->
-        <button onclick="openAdminAuthModal()" class="p-1 text-neutral-600 hover:text-neutral-400"
-          title="Personel Girişi">
+        <button onclick="openAdminAuthModal()" class="p-1 text-neutral-600 hover:text-neutral-400">
           <i data-lucide="key" class="w-3.5 h-3.5"></i>
         </button>
       </div>
@@ -141,19 +105,17 @@
 
   <!-- ================= VIEW 1: CUSTOMER MENU ================= -->
   <main id="view-customer" class="max-w-md mx-auto pb-32 pt-3 px-4 transition-all">
-
+    
     <!-- Table Header Info Bar -->
     <div class="glass-card rounded-2xl p-3.5 mb-3 flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <div
-          class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
+        <div class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
           <i data-lucide="coffee" class="w-5 h-5"></i>
         </div>
         <div>
           <div class="flex items-center gap-2">
-            <h2 class="text-sm font-bold text-white tracking-wide" id="display-table-num">MASA 04</h2>
-            <span
-              class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+            <h2 class="text-sm font-bold text-white tracking-wide" id="display-table-num">MASA 01</h2>
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
               <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Canlı Menü
             </span>
           </div>
@@ -161,13 +123,11 @@
         </div>
       </div>
 
-      <!-- Quick Switcher for Testing (Müşteri modunda gizlenir) -->
-      <select id="table-selector" onchange="changeTable(this.value)"
-        class="bg-[#16201d] text-xs text-amber-300 font-semibold px-2 py-1.5 rounded-lg border border-amber-500/30 outline-none">
-        <option value="1">Masa 01</option>
+      <select id="table-selector" onchange="changeTable(this.value)" class="bg-[#16201d] text-xs text-amber-300 font-semibold px-2 py-1.5 rounded-lg border border-amber-500/30 outline-none">
+        <option value="1" selected>Masa 01</option>
         <option value="2">Masa 02</option>
         <option value="3">Masa 03</option>
-        <option value="4" selected>Masa 04</option>
+        <option value="4">Masa 04</option>
         <option value="5">Masa 05</option>
       </select>
     </div>
@@ -182,27 +142,23 @@
         <span id="tracker-order-id" class="text-[10px] font-mono text-neutral-400">#00</span>
       </div>
       <div class="flex items-center gap-3">
-        <div id="tracker-icon-box"
-          class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center">
+        <div id="tracker-icon-box" class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center">
           <i data-lucide="clock" class="w-5 h-5"></i>
         </div>
         <div class="flex-1">
           <div id="tracker-status-title" class="text-xs font-bold text-white">Sipariş İletildi</div>
-          <p id="tracker-status-desc" class="text-[11px] text-neutral-300">Baristamız sipariş fişini aldı, sıra
-            bekleniyor.</p>
+          <p id="tracker-status-desc" class="text-[11px] text-neutral-300">Baristamız sipariş fişini aldı, sıra bekleniyor.</p>
         </div>
       </div>
     </div>
 
     <!-- Quick Waiter & Bill Actions -->
     <div class="grid grid-cols-2 gap-2 mb-4">
-      <button onclick="callService('waiter')"
-        class="py-2.5 px-3 rounded-xl bg-[#141d1a] border border-white/5 hover:border-amber-500/40 text-neutral-300 hover:text-white flex items-center justify-center gap-2 text-xs font-semibold transition active:scale-95 shadow-sm">
+      <button onclick="callService('waiter')" class="py-2.5 px-3 rounded-xl bg-[#141d1a] border border-white/5 hover:border-amber-500/40 text-neutral-300 hover:text-white flex items-center justify-center gap-2 text-xs font-semibold transition active:scale-95 shadow-sm">
         <i data-lucide="bell" class="w-4 h-4 text-amber-400"></i>
         Garson Çağır
       </button>
-      <button onclick="callService('bill_card')"
-        class="py-2.5 px-3 rounded-xl bg-[#141d1a] border border-white/5 hover:border-emerald-500/40 text-neutral-300 hover:text-white flex items-center justify-center gap-2 text-xs font-semibold transition active:scale-95 shadow-sm">
+      <button onclick="callService('bill_card')" class="py-2.5 px-3 rounded-xl bg-[#141d1a] border border-white/5 hover:border-emerald-500/40 text-neutral-300 hover:text-white flex items-center justify-center gap-2 text-xs font-semibold transition active:scale-95 shadow-sm">
         <i data-lucide="receipt" class="w-4 h-4 text-emerald-400"></i>
         Hesap İste (Kart/Nakit)
       </button>
@@ -216,30 +172,20 @@
         <h3 class="text-xs font-bold uppercase tracking-wider text-neutral-300">Günün Lezzet Pusulası</h3>
       </div>
       <p class="text-xs text-neutral-400 mb-3">Şu an modun nasıl? Sana en uygun içeceği eşleştirelim:</p>
-
+      
       <div class="flex gap-2 overflow-x-auto no-scrollbar pb-1">
-        <button onclick="filterByVibe('all')"
-          class="vibe-btn active whitespace-nowrap px-3 py-1.5 rounded-full text-xs font-medium bg-emerald-600 text-white transition">Tümü</button>
-        <button onclick="filterByVibe('Enerjik')"
-          class="vibe-btn whitespace-nowrap px-3 py-1.5 rounded-full text-xs font-medium bg-white/5 text-neutral-300 hover:bg-white/10 transition">⚡
-          Yüksek Enerji</button>
-        <button onclick="filterByVibe('Tatlı')"
-          class="vibe-btn whitespace-nowrap px-3 py-1.5 rounded-full text-xs font-medium bg-white/5 text-neutral-300 hover:bg-white/10 transition">🍫
-          Tatlı & Şımartıcı</button>
-        <button onclick="filterByVibe('Ferahlatıcı')"
-          class="vibe-btn whitespace-nowrap px-3 py-1.5 rounded-full text-xs font-medium bg-white/5 text-neutral-300 hover:bg-white/10 transition">🍃
-          Buz Gibi & Ferah</button>
-        <button onclick="filterByVibe('Sıcak')"
-          class="vibe-btn whitespace-nowrap px-3 py-1.5 rounded-full text-xs font-medium bg-white/5 text-neutral-300 hover:bg-white/10 transition">☕
-          Klasik & Sıcak</button>
+        <button onclick="filterByVibe('all')" class="vibe-btn active whitespace-nowrap px-3 py-1.5 rounded-full text-xs font-medium bg-emerald-600 text-white transition">Tümü</button>
+        <button onclick="filterByVibe('Enerjik')" class="vibe-btn whitespace-nowrap px-3 py-1.5 rounded-full text-xs font-medium bg-white/5 text-neutral-300 hover:bg-white/10 transition">⚡ Yüksek Enerji</button>
+        <button onclick="filterByVibe('Tatlı')" class="vibe-btn whitespace-nowrap px-3 py-1.5 rounded-full text-xs font-medium bg-white/5 text-neutral-300 hover:bg-white/10 transition">🍫 Tatlı & Şımartıcı</button>
+        <button onclick="filterByVibe('Ferahlatıcı')" class="vibe-btn whitespace-nowrap px-3 py-1.5 rounded-full text-xs font-medium bg-white/5 text-neutral-300 hover:bg-white/10 transition">🍃 Buz Gibi & Ferah</button>
+        <button onclick="filterByVibe('Sıcak')" class="vibe-btn whitespace-nowrap px-3 py-1.5 rounded-full text-xs font-medium bg-white/5 text-neutral-300 hover:bg-white/10 transition">☕ Klasik & Sıcak</button>
       </div>
     </div>
 
-    <!-- Category Tabs (Horizontal Scrollable) -->
+    <!-- Category Tabs -->
     <div class="relative mb-5">
       <div id="category-tabs" class="flex items-center gap-2 overflow-x-auto no-scrollbar scroll-smooth pr-8 py-1">
-        <button onclick="selectCategory(null)"
-          class="cat-pill active px-4 py-2 rounded-xl text-xs font-semibold bg-amber-500/20 text-amber-400 border border-amber-500/30 whitespace-nowrap shrink-0 transition">
+        <button onclick="selectCategory(null)" class="cat-pill active px-4 py-2 rounded-xl text-xs font-semibold bg-amber-500/20 text-amber-400 border border-amber-500/30 whitespace-nowrap shrink-0 transition">
           Hepsi
         </button>
         <div id="dynamic-category-pills" class="flex items-center gap-2 shrink-0"></div>
@@ -251,14 +197,11 @@
   </main>
 
   <!-- Sticky Bottom Basket Floating Bar -->
-  <div id="basket-bar"
-    class="fixed bottom-0 left-0 right-0 z-40 p-4 bg-gradient-to-t from-[#0b0f0e] via-[#0b0f0e]/95 to-transparent pointer-events-none hidden">
+  <div id="basket-bar" class="fixed bottom-0 left-0 right-0 z-40 p-4 bg-gradient-to-t from-[#0b0f0e] via-[#0b0f0e]/95 to-transparent pointer-events-none hidden">
     <div class="max-w-md mx-auto pointer-events-auto">
-      <div
-        class="glass-card rounded-2xl p-3 glow-matcha border-emerald-500/30 flex items-center justify-between shadow-2xl">
+      <div class="glass-card rounded-2xl p-3 glow-matcha border-emerald-500/30 flex items-center justify-between shadow-2xl">
         <div class="flex items-center gap-3 pl-2">
-          <div
-            class="w-10 h-10 rounded-xl bg-emerald-500 text-black flex items-center justify-center font-bold text-sm shadow">
+          <div class="w-10 h-10 rounded-xl bg-emerald-500 text-black flex items-center justify-center font-bold text-sm shadow">
             <span id="basket-count">0</span>
           </div>
           <div>
@@ -266,8 +209,7 @@
             <div class="text-sm font-bold text-white font-mono" id="basket-total">0.00 ₺</div>
           </div>
         </div>
-        <button onclick="submitOrder()" id="btn-submit-order"
-          class="px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-xs tracking-wide transition active:scale-95 flex items-center gap-1.5 shadow-lg shadow-emerald-500/20">
+        <button onclick="submitOrder()" id="btn-submit-order" class="px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-xs tracking-wide transition active:scale-95 flex items-center gap-1.5 shadow-lg shadow-emerald-500/20">
           <span>Siparişi İlet</span>
           <i data-lucide="arrow-right" class="w-4 h-4"></i>
         </button>
@@ -279,8 +221,7 @@
   <main id="view-kitchen" class="max-w-6xl mx-auto p-4 hidden">
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 glass-card p-4 rounded-2xl mb-6">
       <div class="flex items-center gap-3">
-        <div
-          class="w-12 h-12 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400">
+        <div class="w-12 h-12 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400">
           <i data-lucide="flame" class="w-6 h-6"></i>
         </div>
         <div>
@@ -289,18 +230,15 @@
         </div>
       </div>
       <div class="flex items-center gap-3">
-        <span
-          class="inline-flex items-center gap-1.5 text-xs font-mono text-emerald-400 bg-emerald-950/40 px-3 py-1.5 rounded-xl border border-emerald-800/40">
+        <span class="inline-flex items-center gap-1.5 text-xs font-mono text-emerald-400 bg-emerald-950/40 px-3 py-1.5 rounded-xl border border-emerald-800/40">
           <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span> Realtime Aktif
         </span>
-        <button onclick="fetchKitchenData()"
-          class="px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-xs text-white border border-white/10 flex items-center gap-1.5">
+        <button onclick="fetchKitchenData()" class="px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-xs text-white border border-white/10 flex items-center gap-1.5">
           <i data-lucide="rotate-cw" class="w-3.5 h-3.5"></i> Yenile
         </button>
       </div>
     </div>
 
-    <!-- Active Service Calls -->
     <div id="service-calls-container" class="mb-6 space-y-2 hidden">
       <h3 class="text-xs font-bold uppercase tracking-wider text-amber-400 flex items-center gap-2">
         <i data-lucide="bell-ring" class="w-4 h-4"></i> Acil Masa Çağrıları
@@ -308,7 +246,6 @@
       <div id="service-calls-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3"></div>
     </div>
 
-    <!-- Order Cards Grid -->
     <div class="space-y-3">
       <h3 class="text-xs font-bold uppercase tracking-wider text-neutral-400 flex items-center gap-2">
         <i data-lucide="clock" class="w-4 h-4 text-emerald-400"></i> Aktif Siparişler
@@ -325,18 +262,14 @@
           <i data-lucide="credit-card" class="w-5 h-5 text-emerald-400"></i>
           Kasa & Masa Oturma Yönetimi
         </h2>
-        <p class="text-xs text-neutral-400">Masaların açık hesaplarını takip edin, tahsilat yapın ve masaları boşaltın.
-        </p>
+        <p class="text-xs text-neutral-400">Masaların açık hesaplarını takip edin, tahsilat yapın ve masaları boşaltın.</p>
       </div>
-      <button onclick="renderPosView()"
-        class="px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-xs text-white border border-white/10 flex items-center gap-1.5 self-start md:self-auto">
+      <button onclick="renderPosView()" class="px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-xs text-white border border-white/10 flex items-center gap-1.5 self-start md:self-auto">
         <i data-lucide="rotate-cw" class="w-3.5 h-3.5"></i> Masaları Tazele
       </button>
     </div>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4" id="pos-tables-grid">
-      <!-- Injected dynamically -->
-    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4" id="pos-tables-grid"></div>
   </main>
 
   <!-- ================= VIEW 4: TABLE QR GENERATOR ================= -->
@@ -350,8 +283,7 @@
 
   <!-- ================= VIEW 5: ADMIN & ANALYTICS ================= -->
   <main id="view-admin" class="max-w-6xl mx-auto p-4 hidden">
-
-    <!-- Mini Dashboard Analytics Cards -->
+    
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
       <div class="glass-card p-4 rounded-2xl border-white/5">
         <div class="flex items-center justify-between text-neutral-400 mb-1">
@@ -390,23 +322,19 @@
       </div>
     </div>
 
-    <!-- Menu Management Header -->
     <div class="flex items-center justify-between glass-card p-4 rounded-2xl mb-6">
       <div>
         <h2 class="text-base font-bold text-white flex items-center gap-2">
           <i data-lucide="sliders" class="w-5 h-5 text-amber-400"></i>
           Kafe & Menü Yönetim Paneli
         </h2>
-        <p class="text-xs text-neutral-400">Fiyatları anında güncelleyin, ürünleri tükendiye alın ya da yeni ürün
-          ekleyin.</p>
+        <p class="text-xs text-neutral-400">Fiyatları anında güncelleyin, ürünleri tükendiye alın ya da yeni ürün ekleyin.</p>
       </div>
-      <button onclick="openNewProductModal()"
-        class="px-3.5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-bold flex items-center gap-1.5 transition">
+      <button onclick="openNewProductModal()" class="px-3.5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-bold flex items-center gap-1.5 transition">
         <i data-lucide="plus" class="w-4 h-4"></i> Yeni Ürün Ekle
       </button>
     </div>
 
-    <!-- Products Table -->
     <div class="glass-card rounded-2xl overflow-hidden border-white/5">
       <div class="overflow-x-auto">
         <table class="w-full text-left text-xs">
@@ -427,141 +355,121 @@
 
   <!-- ================= MODALS ================= -->
 
-  <!-- PRODUCT CUSTOMIZATION MODAL (Varyasyonlar & Ekstralar) -->
-  <div class="space-y-4 text-xs">
-    <!-- Milk Choice (Sadece sütlü içeceklerde çıkar) -->
-    <div id="cm-group-milk">
-      <label class="block text-neutral-400 font-semibold mb-2">Süt Tercihi</label>
-      <div class="grid grid-cols-3 gap-2">
-        <button type="button" onclick="selectMilk('normal', 0)"
-          class="milk-opt active py-2 rounded-xl border border-emerald-500 bg-emerald-500/20 text-white font-medium text-center">Normal</button>
-        <button type="button" onclick="selectMilk('yulaf', 25)"
-          class="milk-opt py-2 rounded-xl border border-white/5 bg-white/5 text-neutral-300 font-medium text-center hover:bg-white/10">Yulaf
-          (+25₺)</button>
-        <button type="button" onclick="selectMilk('badem', 30)"
-          class="milk-opt py-2 rounded-xl border border-white/5 bg-white/5 text-neutral-300 font-medium text-center hover:bg-white/10">Badem
-          (+30₺)</button>
+  <!-- PRODUCT CUSTOMIZATION MODAL (Akıllı Gruplar & Filtreler) -->
+  <div id="modal-customize" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 hidden overflow-y-auto">
+    <div class="glass-card max-w-sm w-full p-5 rounded-3xl border border-white/10 my-8">
+      <div class="flex items-center justify-between pb-3 border-b border-white/10 mb-4">
+        <div>
+          <h3 class="text-sm font-bold text-white" id="cm-product-name">Kahve Adı</h3>
+          <span class="text-xs font-mono font-bold text-emerald-400" id="cm-base-price">0.00 ₺</span>
+        </div>
+        <button onclick="closeCustomizeModal()" class="text-neutral-400 hover:text-white"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+
+      <div class="space-y-4 text-xs">
+        <!-- Milk Choice (Sadece Sütlü Kahvelerde Çıkar) -->
+        <div id="cm-group-milk">
+          <label class="block text-neutral-400 font-semibold mb-2">Süt Tercihi</label>
+          <div class="grid grid-cols-3 gap-2">
+            <button type="button" onclick="selectMilk('normal', 0)" class="milk-opt active py-2 rounded-xl border border-emerald-500 bg-emerald-500/20 text-white font-medium text-center">Normal</button>
+            <button type="button" onclick="selectMilk('yulaf', 25)" class="milk-opt py-2 rounded-xl border border-white/5 bg-white/5 text-neutral-300 font-medium text-center hover:bg-white/10">Yulaf (+25₺)</button>
+            <button type="button" onclick="selectMilk('badem', 30)" class="milk-opt py-2 rounded-xl border border-white/5 bg-white/5 text-neutral-300 font-medium text-center hover:bg-white/10">Badem (+30₺)</button>
+          </div>
+        </div>
+
+        <!-- Shot Extra (Sadece Kahvelerde Çıkar) -->
+        <div id="cm-group-shot">
+          <label class="block text-neutral-400 font-semibold mb-2">Espresso Shot</label>
+          <div class="grid grid-cols-2 gap-2">
+            <button type="button" onclick="selectShot('tek', 0)" class="shot-opt active py-2 rounded-xl border border-emerald-500 bg-emerald-500/20 text-white font-medium text-center">Standart</button>
+            <button type="button" onclick="selectShot('double', 20)" class="shot-opt py-2 rounded-xl border border-white/5 bg-white/5 text-neutral-300 font-medium text-center hover:bg-white/10">Double Shot (+20₺)</button>
+          </div>
+        </div>
+
+        <!-- Temperature / Ice (İçeceklerde Çıkar, Tatlıda Gizlenir) -->
+        <div id="cm-group-ice">
+          <label class="block text-neutral-400 font-semibold mb-2">Sıcaklık & Buz</label>
+          <div class="grid grid-cols-3 gap-2">
+            <button type="button" onclick="selectIce('Standart')" class="ice-opt active py-2 rounded-xl border border-emerald-500 bg-emerald-500/20 text-white font-medium text-center">Standart</button>
+            <button type="button" onclick="selectIce('Az Buzlu')" class="ice-opt py-2 rounded-xl border border-white/5 bg-white/5 text-neutral-300 font-medium text-center hover:bg-white/10">Az Buz</button>
+            <button type="button" onclick="selectIce('Ekstra Sıcak')" class="ice-opt py-2 rounded-xl border border-white/5 bg-white/5 text-neutral-300 font-medium text-center hover:bg-white/10">Ekstra Sıcak</button>
+          </div>
+        </div>
+
+        <!-- Özel Not Alanı -->
+        <div>
+          <label id="cm-note-label" class="block text-neutral-400 font-semibold mb-1">Baristaya Özel Not</label>
+          <input type="text" id="cm-custom-note" placeholder="Örn: Tatlandırıcı koymayınız, lütfen." class="w-full bg-black/50 border border-white/10 rounded-xl px-3 py-2 text-white outline-none focus:border-emerald-500/50">
+        </div>
+
+        <!-- Add Button -->
+        <button onclick="confirmCustomizedProduct()" class="w-full py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-xs flex items-center justify-between px-4 transition active:scale-95 shadow-lg">
+          <span>Sepete Ekle</span>
+          <span class="font-mono text-sm" id="cm-final-price">0.00 ₺</span>
+        </button>
       </div>
     </div>
-
-    <!-- Shot Extra (Sadece kahvelerde çıkar) -->
-    <div id="cm-group-shot">
-      <label class="block text-neutral-400 font-semibold mb-2">Espresso Shot</label>
-      <div class="grid grid-cols-2 gap-2">
-        <button type="button" onclick="selectShot('tek', 0)"
-          class="shot-opt active py-2 rounded-xl border border-emerald-500 bg-emerald-500/20 text-white font-medium text-center">Standart</button>
-        <button type="button" onclick="selectShot('double', 20)"
-          class="shot-opt py-2 rounded-xl border border-white/5 bg-white/5 text-neutral-300 font-medium text-center hover:bg-white/10">Double
-          Shot (+20₺)</button>
-      </div>
-    </div>
-
-    <!-- Temperature / Ice (Sadece içeceklerde çıkar) -->
-    <div id="cm-group-ice">
-      <label class="block text-neutral-400 font-semibold mb-2">Sıcaklık & Buz</label>
-      <div class="grid grid-cols-3 gap-2">
-        <button type="button" onclick="selectIce('Standart')"
-          class="ice-opt active py-2 rounded-xl border border-emerald-500 bg-emerald-500/20 text-white font-medium text-center">Standart</button>
-        <button type="button" onclick="selectIce('Az Buzlu')"
-          class="ice-opt py-2 rounded-xl border border-white/5 bg-white/5 text-neutral-300 font-medium text-center hover:bg-white/10">Az
-          Buz</button>
-        <button type="button" onclick="selectIce('Ekstra Sıcak')"
-          class="ice-opt py-2 rounded-xl border border-white/5 bg-white/5 text-neutral-300 font-medium text-center hover:bg-white/10">Ekstra
-          Sıcak</button>
-      </div>
-    </div>
-
-    <!-- Custom Note (Her üründe açık kalır) -->
-    <div>
-      <label id="cm-note-label" class="block text-neutral-400 font-semibold mb-1">Baristaya Özel Not</label>
-      <input type="text" id="cm-custom-note" placeholder="Örn: Tatlandırıcı koymayınız, lütfen."
-        class="w-full bg-black/50 border border-white/10 rounded-xl px-3 py-2 text-white outline-none focus:border-emerald-500/50">
-    </div>
-
-    <!-- Add Button -->
-    <button onclick="confirmCustomizedProduct()"
-      class="w-full py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-xs flex items-center justify-between px-4 transition active:scale-95 shadow-lg">
-      <span>Sepete Ekle</span>
-      <span class="font-mono text-sm" id="cm-final-price">0.00 ₺</span>
-    </button>
-  </div>
-  </div>
   </div>
 
   <!-- PIN AUTH MODAL -->
-  <div id="modal-pin"
-    class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 hidden">
+  <div id="modal-pin" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 hidden">
     <div class="glass-card max-w-xs w-full p-6 rounded-3xl border border-white/10 text-center">
-      <div
-        class="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center mx-auto mb-3">
+      <div class="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center mx-auto mb-3">
         <i data-lucide="shield-check" class="w-6 h-6"></i>
       </div>
       <h3 class="text-sm font-bold text-white mb-1">Yönetici Girişi</h3>
       <p class="text-xs text-neutral-400 mb-4">Yetkili erişimi için 4 haneli PIN kodunu giriniz (Varsayılan: 1234)</p>
-
-      <input type="password" id="admin-pin-input" maxlength="4" placeholder="••••"
-        class="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-2.5 text-center text-lg tracking-widest text-amber-400 font-mono outline-none focus:border-amber-500/50 mb-4">
-
+      
+      <input type="password" id="admin-pin-input" maxlength="4" placeholder="••••" class="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-2.5 text-center text-lg tracking-widest text-amber-400 font-mono outline-none focus:border-amber-500/50 mb-4">
+      
       <div class="grid grid-cols-2 gap-2">
-        <button onclick="closeAdminAuthModal()"
-          class="py-2 rounded-xl bg-white/5 text-neutral-300 text-xs font-semibold hover:bg-white/10">İptal</button>
-        <button onclick="verifyAdminPin()"
-          class="py-2 rounded-xl bg-amber-500 text-black text-xs font-bold hover:bg-amber-400">Giriş Yap</button>
+        <button onclick="closeAdminAuthModal()" class="py-2 rounded-xl bg-white/5 text-neutral-300 text-xs font-semibold hover:bg-white/10">İptal</button>
+        <button onclick="verifyAdminPin()" class="py-2 rounded-xl bg-amber-500 text-black text-xs font-bold hover:bg-amber-400">Giriş Yap</button>
       </div>
     </div>
   </div>
 
   <!-- NEW PRODUCT MODAL -->
-  <div id="modal-new-product"
-    class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 hidden overflow-y-auto">
+  <div id="modal-new-product" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 hidden overflow-y-auto">
     <div class="glass-card max-w-md w-full p-6 rounded-3xl border border-white/10 my-8">
       <div class="flex items-center justify-between mb-4">
         <h3 class="text-sm font-bold text-white">Menüye Yeni Lezzet Ekle</h3>
-        <button onclick="closeNewProductModal()" class="text-neutral-400 hover:text-white"><i data-lucide="x"
-            class="w-4 h-4"></i></button>
+        <button onclick="closeNewProductModal()" class="text-neutral-400 hover:text-white"><i data-lucide="x" class="w-4 h-4"></i></button>
       </div>
 
       <div class="space-y-3 text-xs">
         <div>
           <label class="block text-neutral-400 mb-1 font-medium">Ürün Adı</label>
-          <input type="text" id="np-name" placeholder="Örn: Cold Brew Hibiscus"
-            class="w-full bg-black/50 border border-white/10 rounded-xl px-3 py-2 text-white outline-none focus:border-emerald-500/50">
+          <input type="text" id="np-name" placeholder="Örn: Cold Brew Hibiscus" class="w-full bg-black/50 border border-white/10 rounded-xl px-3 py-2 text-white outline-none focus:border-emerald-500/50">
         </div>
         <div>
           <label class="block text-neutral-400 mb-1 font-medium">Açıklama</label>
-          <input type="text" id="np-desc" placeholder="Örn: 18 saat soğuk demlenmiş kahve"
-            class="w-full bg-black/50 border border-white/10 rounded-xl px-3 py-2 text-white outline-none focus:border-emerald-500/50">
+          <input type="text" id="np-desc" placeholder="Örn: 18 saat soğuk demlenmiş kahve" class="w-full bg-black/50 border border-white/10 rounded-xl px-3 py-2 text-white outline-none focus:border-emerald-500/50">
         </div>
         <div class="grid grid-cols-2 gap-2">
           <div>
             <label class="block text-neutral-400 mb-1 font-medium">Kategori</label>
-            <select id="np-category"
-              class="w-full bg-[#141d1a] border border-white/10 rounded-xl px-3 py-2 text-white outline-none focus:border-emerald-500/50"></select>
+            <select id="np-category" class="w-full bg-[#141d1a] border border-white/10 rounded-xl px-3 py-2 text-white outline-none focus:border-emerald-500/50"></select>
           </div>
           <div>
             <label class="block text-neutral-400 mb-1 font-medium">Fiyat (₺)</label>
-            <input type="number" step="0.50" id="np-price" placeholder="185.00"
-              class="w-full bg-black/50 border border-white/10 rounded-xl px-3 py-2 text-white font-mono outline-none focus:border-emerald-500/50">
+            <input type="number" step="0.50" id="np-price" placeholder="185.00" class="w-full bg-black/50 border border-white/10 rounded-xl px-3 py-2 text-white font-mono outline-none focus:border-emerald-500/50">
           </div>
         </div>
         <div>
           <label class="block text-neutral-400 mb-1 font-medium">Görsel URL</label>
-          <input type="text" id="np-image" placeholder="https://images.unsplash.com/..."
-            class="w-full bg-black/50 border border-white/10 rounded-xl px-3 py-2 text-white outline-none focus:border-emerald-500/50">
+          <input type="text" id="np-image" placeholder="https://images.unsplash.com/..." class="w-full bg-black/50 border border-white/10 rounded-xl px-3 py-2 text-white outline-none focus:border-emerald-500/50">
         </div>
         <div>
           <label class="block text-neutral-400 mb-1 font-medium">Tadım Notaları (Virgülle ayırın)</label>
-          <input type="text" id="np-notes" placeholder="Karamel, Fındık, İncir"
-            class="w-full bg-black/50 border border-white/10 rounded-xl px-3 py-2 text-white outline-none focus:border-emerald-500/50">
+          <input type="text" id="np-notes" placeholder="Karamel, Fındık, İncir" class="w-full bg-black/50 border border-white/10 rounded-xl px-3 py-2 text-white outline-none focus:border-emerald-500/50">
         </div>
         <div>
           <label class="block text-neutral-400 mb-1 font-medium">Lezzet Pusulası (Virgülle ayırın)</label>
-          <input type="text" id="np-vibes" placeholder="Enerjik, Ferahlatıcı, Tatlı"
-            class="w-full bg-black/50 border border-white/10 rounded-xl px-3 py-2 text-white outline-none focus:border-emerald-500/50">
+          <input type="text" id="np-vibes" placeholder="Enerjik, Ferahlatıcı, Tatlı" class="w-full bg-black/50 border border-white/10 rounded-xl px-3 py-2 text-white outline-none focus:border-emerald-500/50">
         </div>
 
-        <button onclick="saveNewProduct()"
-          class="w-full mt-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-xs transition">
+        <button onclick="saveNewProduct()" class="w-full mt-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-xs transition">
           Ürünü Menüye Kaydet
         </button>
       </div>
@@ -569,8 +477,7 @@
   </div>
 
   <!-- Notification Toast -->
-  <div id="toast"
-    class="fixed top-16 left-1/2 -translate-x-1/2 z-50 transition-all duration-300 opacity-0 pointer-events-none glass-card border-amber-500/40 text-amber-300 px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 shadow-xl">
+  <div id="toast" class="fixed top-16 left-1/2 -translate-x-1/2 z-50 transition-all duration-300 opacity-0 pointer-events-none glass-card border-amber-500/40 text-amber-300 px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 shadow-xl">
     <i data-lucide="check-circle" class="w-4 h-4 text-amber-400"></i>
     <span id="toast-msg">İşlem başarılı</span>
   </div>
@@ -582,14 +489,13 @@
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     // State Variables
-    let currentTable = 4;
+    let currentTable = 1;
     let products = [];
     let categories = [];
     let basket = [];
     let selectedCat = null;
     let selectedVibe = 'all';
     let activeCustomerOrderId = null;
-    let isCustomerMode = false;
 
     // Customization Modal State
     let activeCustomizingProduct = null;
@@ -646,13 +552,8 @@
         activeBtn.classList.remove('text-neutral-400');
       }
 
-      // MASA TEPSİSİ SADECE MÜŞTERİ MENÜSÜNDE GÖZÜKÜR
-      const basketBar = document.getElementById('basket-bar');
-      if (view === 'customer' && basket.length > 0) {
-        basketBar.classList.remove('hidden');
-      } else {
-        basketBar.classList.add('hidden');
-      }
+      // Sepet barı görünürlüğü
+      updateBasketUI();
 
       if (view === 'kitchen') {
         fetchKitchenData();
@@ -680,19 +581,21 @@
       const urlTable = urlParams.get('table');
       const urlMode = urlParams.get('mode');
 
-      // MÜŞTERİ MODU KONTROLÜ
+      // Müşteri modu kontrolü
       if (urlTable && urlMode !== 'staff') {
         currentTable = parseInt(urlTable);
-        isCustomerMode = true;
+        const sel = document.getElementById('table-selector');
+        if (sel) sel.classList.add('hidden');
 
-        // Üst navigasyonu müşteriden tamamen sakla
+        // Üst personeli gizle
         document.getElementById('staff-navigation').classList.add('hidden');
-        document.getElementById('table-selector').classList.add('hidden');
-
-        // Müşteri masa rozetini göster
+        
+        // Müşteri rozetini aç
         const custBadge = document.getElementById('customer-top-badge');
         custBadge.classList.remove('hidden');
-        document.getElementById('header-table-badge').innerText = `MASA 0${currentTable}`;
+        document.getElementById('header-table-badge').innerText = `MASA ${currentTable < 10 ? '0' + currentTable : currentTable}`;
+      } else if (urlTable) {
+        currentTable = parseInt(urlTable);
       }
 
       document.getElementById('display-table-num').innerText = `MASA ${currentTable < 10 ? '0' + currentTable : currentTable}`;
@@ -701,7 +604,7 @@
       await checkActiveOrderByTable();
       setupRealtimeSubscriptions();
 
-      // Arka plan otomatik polling (KDS & POS için)
+      // Arka plan yenileme
       setInterval(() => {
         const kitchenView = document.getElementById('view-kitchen');
         if (kitchenView && !kitchenView.classList.contains('hidden')) {
@@ -716,7 +619,7 @@
         }
       }, 3000);
 
-      // Kategori butonlarını yatay kaydırma
+      // Kategori fare tekerlek desteği
       const catScroll = document.getElementById('category-tabs');
       if (catScroll) {
         catScroll.addEventListener('wheel', (e) => {
@@ -808,7 +711,7 @@
 
             <div class="flex items-center justify-between mt-2.5">
               <span class="text-xs font-mono font-bold text-emerald-400">${parseFloat(p.price).toFixed(2)} ₺</span>
-              <button onclick="openCustomizeModal(${p.id})" class="px-3 py-1 rounded-lg bg-white/10 hover:bg-emerald-500 hover:text-black text-neutral-200 text-xs font-semibold transition active:scale-90 flex items-center gap-1">
+              <button onclick="openCustomizeModal(${p.id})" class="px-3.5 py-1.5 rounded-lg bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500 hover:text-black text-xs font-bold transition active:scale-90 flex items-center gap-1 shadow-sm">
                 <i data-lucide="plus" class="w-3.5 h-3.5"></i> Ekle
               </button>
             </div>
@@ -818,13 +721,13 @@
       lucide.createIcons();
     }
 
-    // ================= PRODUCT CUSTOMIZATION (VARYASYONLAR) =================
+    // ================= PRODUCT CUSTOMIZATION (AKILLI FİLTRELER) =================
     function openCustomizeModal(productId) {
       const prod = products.find(p => p.id === productId);
       if (!prod) return;
       activeCustomizingProduct = prod;
 
-      const pName = prod.name.toLowerCase();
+      const pName = (prod.name || '').toLowerCase();
       const cat = categories.find(c => c.id === prod.category_id);
       const catName = (cat ? cat.name : '').toLowerCase();
 
@@ -833,7 +736,6 @@
       const isMilky = pName.includes('latte') || pName.includes('cappuccino') || pName.includes('flat white') || pName.includes('cortado') || pName.includes('mocha');
       const isCoffee = !isDessert && (catName.includes('kahve') || pName.includes('espresso') || pName.includes('v60') || pName.includes('brew') || pName.includes('americano'));
 
-      // DOM elemanları
       const milkGroup = document.getElementById('cm-group-milk');
       const shotGroup = document.getElementById('cm-group-shot');
       const iceGroup = document.getElementById('cm-group-ice');
@@ -869,7 +771,7 @@
       }
 
       // Seçimleri sıfırla
-      customOptionMilk = { name: 'Normal Süt', extra: 0 };
+      customOptionMilk = { name: 'Normal', extra: 0 };
       customOptionShot = { name: 'Standart', extra: 0 };
       customOptionIce = 'Standart';
       if (noteInput) noteInput.value = '';
@@ -890,6 +792,7 @@
 
       calculateModalPrice();
       document.getElementById('modal-customize').classList.remove('hidden');
+      lucide.createIcons();
     }
 
     function closeCustomizeModal() {
@@ -897,7 +800,7 @@
     }
 
     function selectMilk(type, extraPrice) {
-      customOptionMilk = { name: type === 'normal' ? 'Normal Süt' : (type === 'yulaf' ? 'Yulaf Sütü' : 'Badem Sütü'), extra: extraPrice };
+      customOptionMilk = { name: type === 'normal' ? 'Normal' : (type === 'yulaf' ? 'Yulaf Sütü' : 'Badem Sütü'), extra: extraPrice };
       document.querySelectorAll('.milk-opt').forEach(b => {
         b.className = "milk-opt py-2 rounded-xl border border-white/5 bg-white/5 text-neutral-300 font-medium text-center hover:bg-white/10";
       });
@@ -906,7 +809,7 @@
     }
 
     function selectShot(type, extraPrice) {
-      customOptionShot = { name: type === 'tek' ? 'Standart Shot' : 'Double Shot (+20₺)', extra: extraPrice };
+      customOptionShot = { name: type === 'tek' ? 'Standart Shot' : 'Double Shot', extra: extraPrice };
       document.querySelectorAll('.shot-opt').forEach(b => {
         b.className = "shot-opt py-2 rounded-xl border border-white/5 bg-white/5 text-neutral-300 font-medium text-center hover:bg-white/10";
       });
@@ -924,14 +827,21 @@
 
     function calculateModalPrice() {
       if (!activeCustomizingProduct) return;
-      const total = parseFloat(activeCustomizingProduct.price) + customOptionMilk.extra + customOptionShot.extra;
+      const pName = (activeCustomizingProduct.name || '').toLowerCase();
+      const cat = categories.find(c => c.id === activeCustomizingProduct.category_id);
+      const catName = (cat ? cat.name : '').toLowerCase();
+      const isDessert = catName.includes('tatlı') || pName.includes('san sebastian') || pName.includes('cheesecake');
+
+      const milkExtra = isDessert ? 0 : customOptionMilk.extra;
+      const shotExtra = isDessert ? 0 : customOptionShot.extra;
+      const total = parseFloat(activeCustomizingProduct.price) + milkExtra + shotExtra;
       document.getElementById('cm-final-price').innerText = total.toFixed(2) + ' ₺';
     }
 
     function confirmCustomizedProduct() {
       if (!activeCustomizingProduct) return;
 
-      const pName = activeCustomizingProduct.name.toLowerCase();
+      const pName = (activeCustomizingProduct.name || '').toLowerCase();
       const cat = categories.find(c => c.id === activeCustomizingProduct.category_id);
       const catName = (cat ? cat.name : '').toLowerCase();
       const isDessert = catName.includes('tatlı') || pName.includes('san sebastian') || pName.includes('cheesecake');
@@ -966,12 +876,15 @@
       const count = basket.reduce((acc, item) => acc + item.quantity, 0);
       const total = basket.reduce((acc, item) => acc + (item.quantity * item.unitPrice), 0);
 
-      document.getElementById('basket-count').innerText = count;
-      document.getElementById('basket-total').innerText = total.toFixed(2) + ' ₺';
-
+      const countEl = document.getElementById('basket-count');
+      const totalEl = document.getElementById('basket-total');
       const bar = document.getElementById('basket-bar');
-      const isCustomerActive = !document.getElementById('view-customer').classList.contains('hidden');
-      if (count > 0 && isCustomerActive) {
+
+      if (countEl) countEl.innerText = count;
+      if (totalEl) totalEl.innerText = total.toFixed(2) + ' ₺';
+
+      // Sepette ürün varsa her koşulda barı aç
+      if (count > 0 && !document.getElementById('view-customer').classList.contains('hidden')) {
         bar.classList.remove('hidden');
       } else {
         bar.classList.add('hidden');
@@ -1207,12 +1120,11 @@
       fetchKitchenData();
     }
 
-    // ================= POS & MASA YÖNETİMİ (KASA) =================
+    // ================= POS & MASA YÖNETİMİ =================
     async function renderPosView() {
       const container = document.getElementById('pos-tables-grid');
-
+      
       try {
-        // Aktif tamamlanmamış siparişler ve hesap çağrıları
         const [ordersRes, callsRes] = await Promise.all([
           supabaseClient.from('orders').select('*').neq('status', 'completed'),
           supabaseClient.from('service_calls').select('*').eq('is_resolved', false)
@@ -1272,12 +1184,10 @@
       if (!confirm(`Masa 0${tableNum} için ödeme tahsil edildi mi? Masa kapatılacak.`)) return;
 
       try {
-        // Masanın siparişlerini completed yap
         await supabaseClient.from('orders').update({ status: 'completed' }).eq('table_number', tableNum).neq('status', 'completed');
-        // Varsa masa çağrılarını kapat
         await supabaseClient.from('service_calls').update({ is_resolved: true }).eq('table_number', tableNum);
 
-        showToast(`Masa 0${tableNum} hesabı kapatıldı. Masa boşaltıldı.`);
+        showToast(`Masa 0${tableNum} hesabı kapatıldı.`);
         renderPosView();
       } catch (e) {
         showToast('Tahsilat işlemi yapılamadı.');
@@ -1290,16 +1200,13 @@
         const { data: orders } = await supabaseClient.from('orders').select('*, order_items(*)');
         if (!orders) return;
 
-        // Toplam ciro
         const totalRev = orders.filter(o => o.status === 'completed').reduce((acc, o) => acc + parseFloat(o.total_amount), 0);
         document.getElementById('stat-total-revenue').innerText = totalRev.toFixed(2) + ' ₺';
         document.getElementById('stat-total-orders').innerText = orders.length;
 
-        // Aktif masalar
         const activeTables = new Set(orders.filter(o => o.status !== 'completed').map(o => o.table_number));
         document.getElementById('stat-active-tables').innerText = `${activeTables.size} / 5`;
 
-        // En çok satan ürün
         const counts = {};
         orders.forEach(o => {
           (o.order_items || []).forEach(it => {
@@ -1316,7 +1223,7 @@
           }
         }
         document.getElementById('stat-top-product').innerText = topProd;
-        document.getElementById('stat-top-count').innerText = topCount > 0 ? `${topCount} adet satıldı` : 'Henüz veri yok';
+        document.getElementById('stat-top-count').innerText = topCount > 0 ? `${topCount} adet satıldı` : 'Henüz sipariş yok';
       } catch (e) {
         console.error(e);
       }
@@ -1369,7 +1276,6 @@
       const pin = document.getElementById('admin-pin-input').value;
       if (pin === '1234') {
         closeAdminAuthModal();
-        // Müşteri modundaysa üst barı yetkiliye aç
         document.getElementById('staff-navigation').classList.remove('hidden');
         switchView('admin');
         showToast('🔑 Yetkili girişi sağlandı.');
@@ -1504,7 +1410,6 @@
       const baseUrl = window.location.origin + window.location.pathname;
 
       [1, 2, 3, 4, 5].forEach(tableNum => {
-        // QR kod doğrudan masa parametresiyle oluşturulur (müşteri modunu tetikler)
         const tableUrl = `${baseUrl}?table=${tableNum}`;
         const card = document.createElement('div');
         card.className = "glass-card rounded-3xl p-6 text-center border border-white/10 flex flex-col items-center shadow-xl";
@@ -1537,5 +1442,4 @@
     window.addEventListener('DOMContentLoaded', initApp);
   </script>
 </body>
-
 </html>
