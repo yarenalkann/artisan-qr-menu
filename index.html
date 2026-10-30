@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Aura • Artisan QR, Realtime KDS & Admin</title>
+  <title>Aura • Artisan QR, KDS, POS & Analytics</title>
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -28,7 +28,7 @@
       font-family: 'Playfair Display', serif;
     }
     .glass-card {
-      background: rgba(18, 26, 24, 0.75);
+      background: rgba(18, 26, 24, 0.78);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
       border: 1px solid rgba(255, 255, 255, 0.08);
@@ -58,7 +58,7 @@
 </head>
 <body class="min-h-screen selection:bg-amber-500/30 selection:text-amber-200">
 
-  <!-- TOP APP SWITCHER (Geliştirme Boyunca Hep Açık) -->
+  <!-- TOP HEADER -->
   <header class="sticky top-0 z-50 bg-[#0e1412]/95 backdrop-blur-md border-b border-emerald-950/60 px-4 py-2.5">
     <div class="max-w-6xl mx-auto flex items-center justify-between gap-3">
       <div class="flex items-center gap-2 cursor-pointer" onclick="switchView('customer')">
@@ -71,8 +71,8 @@
         </div>
       </div>
 
-      <!-- Navigation Tabs -->
-      <nav class="flex items-center gap-1.5 p-1 bg-black/40 rounded-xl border border-white/5 text-xs font-medium">
+      <!-- Staff Views Switcher (Müşteri modunda tamamen gizlenir) -->
+      <nav id="staff-navigation" class="flex items-center gap-1.5 p-1 bg-black/40 rounded-xl border border-white/5 text-xs font-medium">
         <button id="nav-btn-customer" onclick="switchView('customer')" class="px-3 py-1.5 rounded-lg transition-all text-white bg-emerald-600/80 shadow">
           📱 Menü
         </button>
@@ -80,13 +80,28 @@
           👨‍🍳 Mutfak
           <span id="kitchen-badge" class="hidden px-1.5 py-0.2 text-[10px] bg-amber-500 text-black font-bold rounded-full">0</span>
         </button>
-        <button id="nav-btn-qrcodes" onclick="switchView('qrcodes')" class="px-3 py-1.5 rounded-lg transition-all text-neutral-400 hover:text-white">
+        <button id="nav-btn-pos" onclick="switchView('pos')" class="px-3 py-1.5 rounded-lg transition-all text-neutral-400 hover:text-white flex items-center gap-1.5">
+          💳 Kasa & Masalar
+        </button>
+        <button id="nav-btn-qrcodes" onclick="switchView('qrcodes')" class="px-2.5 py-1.5 rounded-lg transition-all text-neutral-400 hover:text-white">
           🖨️ QR
         </button>
         <button id="nav-btn-admin" onclick="openAdminAuthModal()" class="px-2.5 py-1.5 rounded-lg transition-all text-neutral-400 hover:text-amber-400 flex items-center gap-1 border border-white/5">
           <i data-lucide="lock" class="w-3.5 h-3.5"></i>
+          <span class="hidden md:inline">Yönetim</span>
         </button>
       </nav>
+
+      <!-- Customer Top Badge (Sadece müşteri masada otururken görünür) -->
+      <div id="customer-top-badge" class="hidden flex items-center gap-2">
+        <span class="px-3 py-1 rounded-full text-xs font-bold font-mono bg-amber-500/10 text-amber-300 border border-amber-500/20" id="header-table-badge">
+          MASA 04
+        </span>
+        <!-- Gizli personel kilit butonu -->
+        <button onclick="openAdminAuthModal()" class="p-1 text-neutral-600 hover:text-neutral-400" title="Personel Girişi">
+          <i data-lucide="key" class="w-3.5 h-3.5"></i>
+        </button>
+      </div>
     </div>
   </header>
 
@@ -110,6 +125,7 @@
         </div>
       </div>
 
+      <!-- Quick Switcher for Testing (Müşteri modunda gizlenir) -->
       <select id="table-selector" onchange="changeTable(this.value)" class="bg-[#16201d] text-xs text-amber-300 font-semibold px-2 py-1.5 rounded-lg border border-amber-500/30 outline-none">
         <option value="1">Masa 01</option>
         <option value="2">Masa 02</option>
@@ -158,7 +174,7 @@
         <i data-lucide="sparkles" class="w-4 h-4 text-amber-400"></i>
         <h3 class="text-xs font-bold uppercase tracking-wider text-neutral-300">Günün Lezzet Pusulası</h3>
       </div>
-      <p class="text-xs text-neutral-400 mb-3">Şu an modun nasıl? Sana en uygun lezzeti eşleştirelim:</p>
+      <p class="text-xs text-neutral-400 mb-3">Şu an modun nasıl? Sana en uygun içeceği eşleştirelim:</p>
       
       <div class="flex gap-2 overflow-x-auto no-scrollbar pb-1">
         <button onclick="filterByVibe('all')" class="vibe-btn active whitespace-nowrap px-3 py-1.5 rounded-full text-xs font-medium bg-emerald-600 text-white transition">Tümü</button>
@@ -169,7 +185,7 @@
       </div>
     </div>
 
-    <!-- Category Tabs (Horizontal Scrollable + Tam Görünüm) -->
+    <!-- Category Tabs (Horizontal Scrollable) -->
     <div class="relative mb-5">
       <div id="category-tabs" class="flex items-center gap-2 overflow-x-auto no-scrollbar scroll-smooth pr-8 py-1">
         <button onclick="selectCategory(null)" class="cat-pill active px-4 py-2 rounded-xl text-xs font-semibold bg-amber-500/20 text-amber-400 border border-amber-500/30 whitespace-nowrap shrink-0 transition">
@@ -183,7 +199,7 @@
     <div id="products-grid" class="space-y-3.5"></div>
   </main>
 
-  <!-- Sticky Bottom Basket Floating Bar (SADECE MÜŞTERİ MENÜSÜNDE ÇIKAR) -->
+  <!-- Sticky Bottom Basket Floating Bar -->
   <div id="basket-bar" class="fixed bottom-0 left-0 right-0 z-40 p-4 bg-gradient-to-t from-[#0b0f0e] via-[#0b0f0e]/95 to-transparent pointer-events-none hidden">
     <div class="max-w-md mx-auto pointer-events-auto">
       <div class="glass-card rounded-2xl p-3 glow-matcha border-emerald-500/30 flex items-center justify-between shadow-2xl">
@@ -213,7 +229,7 @@
         </div>
         <div>
           <h2 class="text-base font-bold text-white">Barista & Mutfak Canlı Ekranı</h2>
-          <p class="text-xs text-neutral-400">Gelen siparişler ve çağrılar anında listelenir.</p>
+          <p class="text-xs text-neutral-400">Gelen siparişler ve çağrılar anında sesli bildirimle listelenir.</p>
         </div>
       </div>
       <div class="flex items-center gap-3">
@@ -243,30 +259,92 @@
     </div>
   </main>
 
-  <!-- ================= VIEW 3: TABLE QR GENERATOR ================= -->
+  <!-- ================= VIEW 3: POS & TABLE CHECKOUT (KASA) ================= -->
+  <main id="view-pos" class="max-w-6xl mx-auto p-4 hidden">
+    <div class="glass-card p-5 rounded-2xl mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div>
+        <h2 class="text-base font-bold text-white flex items-center gap-2">
+          <i data-lucide="credit-card" class="w-5 h-5 text-emerald-400"></i>
+          Kasa & Masa Oturma Yönetimi
+        </h2>
+        <p class="text-xs text-neutral-400">Masaların açık hesaplarını takip edin, tahsilat yapın ve masaları boşaltın.</p>
+      </div>
+      <button onclick="renderPosView()" class="px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-xs text-white border border-white/10 flex items-center gap-1.5 self-start md:self-auto">
+        <i data-lucide="rotate-cw" class="w-3.5 h-3.5"></i> Masaları Tazele
+      </button>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4" id="pos-tables-grid">
+      <!-- Injected dynamically -->
+    </div>
+  </main>
+
+  <!-- ================= VIEW 4: TABLE QR GENERATOR ================= -->
   <main id="view-qrcodes" class="max-w-5xl mx-auto p-4 hidden">
     <div class="glass-card p-5 rounded-2xl mb-6">
       <h2 class="text-base font-bold text-white mb-1">Masaüstü QR Stand Şablonları</h2>
-      <p class="text-xs text-neutral-400">Her masa için özel kodlanmış QR standları.</p>
+      <p class="text-xs text-neutral-400">Her masa için özel kodlanmış QR standları. Doğrudan yazdırabilirsiniz.</p>
     </div>
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6" id="qr-stands-grid"></div>
   </main>
 
-  <!-- ================= VIEW 4: ADMIN / MENU MANAGEMENT ================= -->
-  <main id="view-admin" class="max-w-5xl mx-auto p-4 hidden">
+  <!-- ================= VIEW 5: ADMIN & ANALYTICS ================= -->
+  <main id="view-admin" class="max-w-6xl mx-auto p-4 hidden">
+    
+    <!-- Mini Dashboard Analytics Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div class="glass-card p-4 rounded-2xl border-white/5">
+        <div class="flex items-center justify-between text-neutral-400 mb-1">
+          <span class="text-xs uppercase font-semibold">Bugünkü Ciro</span>
+          <i data-lucide="turkish-lira" class="w-4 h-4 text-emerald-400"></i>
+        </div>
+        <div class="text-2xl font-black text-white font-mono" id="stat-total-revenue">0.00 ₺</div>
+        <span class="text-[10px] text-emerald-400">Tamamlanan siparişlerden</span>
+      </div>
+
+      <div class="glass-card p-4 rounded-2xl border-white/5">
+        <div class="flex items-center justify-between text-neutral-400 mb-1">
+          <span class="text-xs uppercase font-semibold">Toplam Sipariş</span>
+          <i data-lucide="shopping-bag" class="w-4 h-4 text-amber-400"></i>
+        </div>
+        <div class="text-2xl font-black text-white font-mono" id="stat-total-orders">0</div>
+        <span class="text-[10px] text-neutral-400">Gün içi mutfak akışı</span>
+      </div>
+
+      <div class="glass-card p-4 rounded-2xl border-white/5">
+        <div class="flex items-center justify-between text-neutral-400 mb-1">
+          <span class="text-xs uppercase font-semibold">Dolu Masalar</span>
+          <i data-lucide="users" class="w-4 h-4 text-cyan-400"></i>
+        </div>
+        <div class="text-2xl font-black text-white font-mono" id="stat-active-tables">0 / 5</div>
+        <span class="text-[10px] text-cyan-400">Şu an serviste olan</span>
+      </div>
+
+      <div class="glass-card p-4 rounded-2xl border-white/5">
+        <div class="flex items-center justify-between text-neutral-400 mb-1">
+          <span class="text-xs uppercase font-semibold">Favori Lezzet</span>
+          <i data-lucide="award" class="w-4 h-4 text-purple-400"></i>
+        </div>
+        <div class="text-sm font-bold text-white truncate mt-1" id="stat-top-product">-</div>
+        <span class="text-[10px] text-purple-400" id="stat-top-count">En çok sipariş edilen</span>
+      </div>
+    </div>
+
+    <!-- Menu Management Header -->
     <div class="flex items-center justify-between glass-card p-4 rounded-2xl mb-6">
       <div>
         <h2 class="text-base font-bold text-white flex items-center gap-2">
           <i data-lucide="sliders" class="w-5 h-5 text-amber-400"></i>
           Kafe & Menü Yönetim Paneli
         </h2>
-        <p class="text-xs text-neutral-400">Fiyatları güncelleyin, ürünleri tükendiye alın ya da yeni ürün ekleyin.</p>
+        <p class="text-xs text-neutral-400">Fiyatları anında güncelleyin, ürünleri tükendiye alın ya da yeni ürün ekleyin.</p>
       </div>
       <button onclick="openNewProductModal()" class="px-3.5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-bold flex items-center gap-1.5 transition">
         <i data-lucide="plus" class="w-4 h-4"></i> Yeni Ürün Ekle
       </button>
     </div>
 
+    <!-- Products Table -->
     <div class="glass-card rounded-2xl overflow-hidden border-white/5">
       <div class="overflow-x-auto">
         <table class="w-full text-left text-xs">
@@ -285,6 +363,64 @@
     </div>
   </main>
 
+  <!-- ================= MODALS ================= -->
+
+  <!-- PRODUCT CUSTOMIZATION MODAL (Varyasyonlar & Ekstralar) -->
+  <div id="modal-customize" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 hidden overflow-y-auto">
+    <div class="glass-card max-w-sm w-full p-5 rounded-3xl border border-white/10 my-8">
+      <div class="flex items-center justify-between pb-3 border-b border-white/10 mb-4">
+        <div>
+          <h3 class="text-sm font-bold text-white" id="cm-product-name">Kahve Adı</h3>
+          <span class="text-xs font-mono font-bold text-emerald-400" id="cm-base-price">0.00 ₺</span>
+        </div>
+        <button onclick="closeCustomizeModal()" class="text-neutral-400 hover:text-white"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+
+      <div class="space-y-4 text-xs">
+        <!-- Milk Choice -->
+        <div>
+          <label class="block text-neutral-400 font-semibold mb-2">Süt Tercihi</label>
+          <div class="grid grid-cols-3 gap-2">
+            <button type="button" onclick="selectMilk('normal', 0)" class="milk-opt active py-2 rounded-xl border border-emerald-500 bg-emerald-500/20 text-white font-medium text-center">Normal</button>
+            <button type="button" onclick="selectMilk('yulaf', 25)" class="milk-opt py-2 rounded-xl border border-white/5 bg-white/5 text-neutral-300 font-medium text-center hover:bg-white/10">Yulaf (+25₺)</button>
+            <button type="button" onclick="selectMilk('badem', 30)" class="milk-opt py-2 rounded-xl border border-white/5 bg-white/5 text-neutral-300 font-medium text-center hover:bg-white/10">Badem (+30₺)</button>
+          </div>
+        </div>
+
+        <!-- Shot Extra -->
+        <div>
+          <label class="block text-neutral-400 font-semibold mb-2">Espresso Shot</label>
+          <div class="grid grid-cols-2 gap-2">
+            <button type="button" onclick="selectShot('tek', 0)" class="shot-opt active py-2 rounded-xl border border-emerald-500 bg-emerald-500/20 text-white font-medium text-center">Standart</button>
+            <button type="button" onclick="selectShot('double', 20)" class="shot-opt py-2 rounded-xl border border-white/5 bg-white/5 text-neutral-300 font-medium text-center hover:bg-white/10">Double Shot (+20₺)</button>
+          </div>
+        </div>
+
+        <!-- Temperature / Ice -->
+        <div>
+          <label class="block text-neutral-400 font-semibold mb-2">Sıcaklık & Buz</label>
+          <div class="grid grid-cols-3 gap-2">
+            <button type="button" onclick="selectIce('Standart')" class="ice-opt active py-2 rounded-xl border border-emerald-500 bg-emerald-500/20 text-white font-medium text-center">Standart</button>
+            <button type="button" onclick="selectIce('Az Buzlu')" class="ice-opt py-2 rounded-xl border border-white/5 bg-white/5 text-neutral-300 font-medium text-center hover:bg-white/10">Az Buz</button>
+            <button type="button" onclick="selectIce('Ekstra Sıcak')" class="ice-opt py-2 rounded-xl border border-white/5 bg-white/5 text-neutral-300 font-medium text-center hover:bg-white/10">Ekstra Sıcak</button>
+          </div>
+        </div>
+
+        <!-- Barista Note -->
+        <div>
+          <label class="block text-neutral-400 font-semibold mb-1">Baristaya Özel Not</label>
+          <input type="text" id="cm-custom-note" placeholder="Örn: Tatlandırıcı koymayınız, lütfen." class="w-full bg-black/50 border border-white/10 rounded-xl px-3 py-2 text-white outline-none focus:border-emerald-500/50">
+        </div>
+
+        <!-- Add Button with dynamic price -->
+        <button onclick="confirmCustomizedProduct()" class="w-full py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-xs flex items-center justify-between px-4 transition active:scale-95 shadow-lg">
+          <span>Sepete Ekle</span>
+          <span class="font-mono text-sm" id="cm-final-price">0.00 ₺</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- PIN AUTH MODAL -->
   <div id="modal-pin" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 hidden">
     <div class="glass-card max-w-xs w-full p-6 rounded-3xl border border-white/10 text-center">
@@ -292,7 +428,7 @@
         <i data-lucide="shield-check" class="w-6 h-6"></i>
       </div>
       <h3 class="text-sm font-bold text-white mb-1">Yönetici Girişi</h3>
-      <p class="text-xs text-neutral-400 mb-4">Yetkili erişimi için PIN kodunu giriniz (Varsayılan: 1234)</p>
+      <p class="text-xs text-neutral-400 mb-4">Yetkili erişimi için 4 haneli PIN kodunu giriniz (Varsayılan: 1234)</p>
       
       <input type="password" id="admin-pin-input" maxlength="4" placeholder="••••" class="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-2.5 text-center text-lg tracking-widest text-amber-400 font-mono outline-none focus:border-amber-500/50 mb-4">
       
@@ -318,7 +454,7 @@
         </div>
         <div>
           <label class="block text-neutral-400 mb-1 font-medium">Açıklama</label>
-          <input type="text" id="np-desc" placeholder="Örn: 18 saat soğuk demlenmiş organik kahve" class="w-full bg-black/50 border border-white/10 rounded-xl px-3 py-2 text-white outline-none focus:border-emerald-500/50">
+          <input type="text" id="np-desc" placeholder="Örn: 18 saat soğuk demlenmiş kahve" class="w-full bg-black/50 border border-white/10 rounded-xl px-3 py-2 text-white outline-none focus:border-emerald-500/50">
         </div>
         <div class="grid grid-cols-2 gap-2">
           <div>
@@ -336,7 +472,7 @@
         </div>
         <div>
           <label class="block text-neutral-400 mb-1 font-medium">Tadım Notaları (Virgülle ayırın)</label>
-          <input type="text" id="np-notes" placeholder="Karamel, Fındık, Çikolata" class="w-full bg-black/50 border border-white/10 rounded-xl px-3 py-2 text-white outline-none focus:border-emerald-500/50">
+          <input type="text" id="np-notes" placeholder="Karamel, Fındık, İncir" class="w-full bg-black/50 border border-white/10 rounded-xl px-3 py-2 text-white outline-none focus:border-emerald-500/50">
         </div>
         <div>
           <label class="block text-neutral-400 mb-1 font-medium">Lezzet Pusulası (Virgülle ayırın)</label>
@@ -370,6 +506,13 @@
     let selectedCat = null;
     let selectedVibe = 'all';
     let activeCustomerOrderId = null;
+    let isCustomerMode = false;
+
+    // Customization Modal State
+    let activeCustomizingProduct = null;
+    let customOptionMilk = { name: 'Normal', extra: 0 };
+    let customOptionShot = { name: 'Standart', extra: 0 };
+    let customOptionIce = 'Standart';
 
     function playKitchenBell() {
       try {
@@ -401,7 +544,7 @@
 
     // View Navigation Switcher
     function switchView(view) {
-      ['customer', 'kitchen', 'qrcodes', 'admin'].forEach(v => {
+      ['customer', 'kitchen', 'pos', 'qrcodes', 'admin'].forEach(v => {
         const el = document.getElementById(`view-${v}`);
         if (el) el.classList.add('hidden');
         const btn = document.getElementById(`nav-btn-${v}`);
@@ -420,7 +563,7 @@
         activeBtn.classList.remove('text-neutral-400');
       }
 
-      // SEPET BARINI SADECE MÜŞTERİ MENÜSÜNDE VE SEPETTE ÜRÜN VARSA GÖSTER
+      // MASA TEPSİSİ SADECE MÜŞTERİ MENÜSÜNDE GÖZÜKÜR
       const basketBar = document.getElementById('basket-bar');
       if (view === 'customer' && basket.length > 0) {
         basketBar.classList.remove('hidden');
@@ -430,10 +573,13 @@
 
       if (view === 'kitchen') {
         fetchKitchenData();
+      } else if (view === 'pos') {
+        renderPosView();
       } else if (view === 'qrcodes') {
         renderQRStands();
       } else if (view === 'admin') {
         renderAdminPanel();
+        loadAnalyticsDashboard();
       }
       lucide.createIcons();
     }
@@ -449,29 +595,45 @@
     async function initApp() {
       const urlParams = new URLSearchParams(window.location.search);
       const urlTable = urlParams.get('table');
-      if (urlTable) {
+      const urlMode = urlParams.get('mode');
+
+      // MÜŞTERİ MODU KONTROLÜ
+      if (urlTable && urlMode !== 'staff') {
         currentTable = parseInt(urlTable);
-        const sel = document.getElementById('table-selector');
-        if (sel) sel.value = currentTable;
-        document.getElementById('display-table-num').innerText = `MASA ${currentTable < 10 ? '0' + currentTable : currentTable}`;
+        isCustomerMode = true;
+
+        // Üst navigasyonu müşteriden tamamen sakla
+        document.getElementById('staff-navigation').classList.add('hidden');
+        document.getElementById('table-selector').classList.add('hidden');
+        
+        // Müşteri masa rozetini göster
+        const custBadge = document.getElementById('customer-top-badge');
+        custBadge.classList.remove('hidden');
+        document.getElementById('header-table-badge').innerText = `MASA 0${currentTable}`;
       }
+
+      document.getElementById('display-table-num').innerText = `MASA ${currentTable < 10 ? '0' + currentTable : currentTable}`;
 
       await loadCategoriesAndProducts();
       await checkActiveOrderByTable();
       setupRealtimeSubscriptions();
 
-      // Mutfak verisi için 3 saniyede bir otomatik senkronizasyon motoru
+      // Arka plan otomatik polling (KDS & POS için)
       setInterval(() => {
         const kitchenView = document.getElementById('view-kitchen');
         if (kitchenView && !kitchenView.classList.contains('hidden')) {
           fetchKitchenData();
+        }
+        const posView = document.getElementById('view-pos');
+        if (posView && !posView.classList.contains('hidden')) {
+          renderPosView();
         }
         if (activeCustomerOrderId) {
           checkActiveOrderByTable();
         }
       }, 3000);
 
-      // Kategori butonlarını fare tekerleğiyle sağa-sola kaydırma
+      // Kategori butonlarını yatay kaydırma
       const catScroll = document.getElementById('category-tabs');
       if (catScroll) {
         catScroll.addEventListener('wheel', (e) => {
@@ -563,7 +725,7 @@
 
             <div class="flex items-center justify-between mt-2.5">
               <span class="text-xs font-mono font-bold text-emerald-400">${parseFloat(p.price).toFixed(2)} ₺</span>
-              <button onclick="addToBasket(${p.id})" class="px-3 py-1 rounded-lg bg-white/10 hover:bg-emerald-500 hover:text-black text-neutral-200 text-xs font-semibold transition active:scale-90 flex items-center gap-1">
+              <button onclick="openCustomizeModal(${p.id})" class="px-3 py-1 rounded-lg bg-white/10 hover:bg-emerald-500 hover:text-black text-neutral-200 text-xs font-semibold transition active:scale-90 flex items-center gap-1">
                 <i data-lucide="plus" class="w-3.5 h-3.5"></i> Ekle
               </button>
             </div>
@@ -573,30 +735,107 @@
       lucide.createIcons();
     }
 
-    // Basket Handlers
-    function addToBasket(productId) {
+    // ================= PRODUCT CUSTOMIZATION (VARYASYONLAR) =================
+    function openCustomizeModal(productId) {
       const prod = products.find(p => p.id === productId);
       if (!prod) return;
-      
-      const existing = basket.find(item => item.product.id === productId);
-      if (existing) {
-        existing.quantity += 1;
-      } else {
-        basket.push({ product: prod, quantity: 1, notes: '' });
-      }
+      activeCustomizingProduct = prod;
+
+      // Reset options
+      customOptionMilk = { name: 'Normal', extra: 0 };
+      customOptionShot = { name: 'Standart', extra: 0 };
+      customOptionIce = 'Standart';
+      document.getElementById('cm-custom-note').value = '';
+
+      document.getElementById('cm-product-name').innerText = prod.name;
+      document.getElementById('cm-base-price').innerText = `${parseFloat(prod.price).toFixed(2)} ₺`;
+
+      // Reset button UI styles
+      document.querySelectorAll('.milk-opt').forEach((b, i) => {
+        b.className = i === 0 ? "milk-opt active py-2 rounded-xl border border-emerald-500 bg-emerald-500/20 text-white font-medium text-center" : "milk-opt py-2 rounded-xl border border-white/5 bg-white/5 text-neutral-300 font-medium text-center hover:bg-white/10";
+      });
+      document.querySelectorAll('.shot-opt').forEach((b, i) => {
+        b.className = i === 0 ? "shot-opt active py-2 rounded-xl border border-emerald-500 bg-emerald-500/20 text-white font-medium text-center" : "shot-opt py-2 rounded-xl border border-white/5 bg-white/5 text-neutral-300 font-medium text-center hover:bg-white/10";
+      });
+      document.querySelectorAll('.ice-opt').forEach((b, i) => {
+        b.className = i === 0 ? "ice-opt active py-2 rounded-xl border border-emerald-500 bg-emerald-500/20 text-white font-medium text-center" : "ice-opt py-2 rounded-xl border border-white/5 bg-white/5 text-neutral-300 font-medium text-center hover:bg-white/10";
+      });
+
+      calculateModalPrice();
+      document.getElementById('modal-customize').classList.remove('hidden');
+    }
+
+    function closeCustomizeModal() {
+      document.getElementById('modal-customize').classList.add('hidden');
+    }
+
+    function selectMilk(type, extraPrice) {
+      customOptionMilk = { name: type === 'normal' ? 'Normal Süt' : (type === 'yulaf' ? 'Yulaf Sütü' : 'Badem Sütü'), extra: extraPrice };
+      document.querySelectorAll('.milk-opt').forEach(b => {
+        b.className = "milk-opt py-2 rounded-xl border border-white/5 bg-white/5 text-neutral-300 font-medium text-center hover:bg-white/10";
+      });
+      event.currentTarget.className = "milk-opt active py-2 rounded-xl border border-emerald-500 bg-emerald-500/20 text-white font-medium text-center";
+      calculateModalPrice();
+    }
+
+    function selectShot(type, extraPrice) {
+      customOptionShot = { name: type === 'tek' ? 'Standart Shot' : 'Double Shot (+20₺)', extra: extraPrice };
+      document.querySelectorAll('.shot-opt').forEach(b => {
+        b.className = "shot-opt py-2 rounded-xl border border-white/5 bg-white/5 text-neutral-300 font-medium text-center hover:bg-white/10";
+      });
+      event.currentTarget.className = "shot-opt active py-2 rounded-xl border border-emerald-500 bg-emerald-500/20 text-white font-medium text-center";
+      calculateModalPrice();
+    }
+
+    function selectIce(val) {
+      customOptionIce = val;
+      document.querySelectorAll('.ice-opt').forEach(b => {
+        b.className = "ice-opt py-2 rounded-xl border border-white/5 bg-white/5 text-neutral-300 font-medium text-center hover:bg-white/10";
+      });
+      event.currentTarget.className = "ice-opt active py-2 rounded-xl border border-emerald-500 bg-emerald-500/20 text-white font-medium text-center";
+    }
+
+    function calculateModalPrice() {
+      if (!activeCustomizingProduct) return;
+      const total = parseFloat(activeCustomizingProduct.price) + customOptionMilk.extra + customOptionShot.extra;
+      document.getElementById('cm-final-price').innerText = total.toFixed(2) + ' ₺';
+    }
+
+    function confirmCustomizedProduct() {
+      if (!activeCustomizingProduct) return;
+
+      const userNote = document.getElementById('cm-custom-note').value.trim();
+      const unitPrice = parseFloat(activeCustomizingProduct.price) + customOptionMilk.extra + customOptionShot.extra;
+
+      // Özel sipariş notunu ve varyasyonları derle
+      const details = [];
+      if (customOptionMilk.extra > 0) details.push(customOptionMilk.name);
+      if (customOptionShot.extra > 0) details.push(customOptionShot.name);
+      if (customOptionIce !== 'Standart') details.push(customOptionIce);
+      if (userNote) details.push(userNote);
+
+      const notesFormatted = details.join(' • ');
+
+      basket.push({
+        product: activeCustomizingProduct,
+        quantity: 1,
+        unitPrice: unitPrice,
+        notes: notesFormatted
+      });
+
+      closeCustomizeModal();
       updateBasketUI();
-      showToast(`${prod.name} sepete eklendi.`);
+      showToast(`${activeCustomizingProduct.name} tepsiye eklendi.`);
     }
 
     function updateBasketUI() {
       const count = basket.reduce((acc, item) => acc + item.quantity, 0);
-      const total = basket.reduce((acc, item) => acc + (item.quantity * parseFloat(item.product.price)), 0);
+      const total = basket.reduce((acc, item) => acc + (item.quantity * item.unitPrice), 0);
 
       document.getElementById('basket-count').innerText = count;
       document.getElementById('basket-total').innerText = total.toFixed(2) + ' ₺';
 
       const bar = document.getElementById('basket-bar');
-      // SADECE MÜŞTERİ MENÜSÜ AÇIKSA VE SEPETTE ÜRÜN VARSA GÖSTER
       const isCustomerActive = !document.getElementById('view-customer').classList.contains('hidden');
       if (count > 0 && isCustomerActive) {
         bar.classList.remove('hidden');
@@ -611,7 +850,7 @@
       btn.disabled = true;
       btn.innerHTML = `<span>İletiliyor...</span>`;
 
-      const totalAmount = basket.reduce((acc, item) => acc + (item.quantity * parseFloat(item.product.price)), 0);
+      const totalAmount = basket.reduce((acc, item) => acc + (item.quantity * item.unitPrice), 0);
 
       try {
         const { data: orderData, error: orderErr } = await supabaseClient
@@ -627,7 +866,7 @@
           order_id: newOrderId,
           product_name: item.product.name,
           quantity: item.quantity,
-          unit_price: item.product.price,
+          unit_price: item.unitPrice,
           notes: item.notes || ''
         }));
 
@@ -768,9 +1007,12 @@
 
               <div class="space-y-2 mb-4">
                 ${(ord.order_items || []).map(item => `
-                  <div class="flex items-center justify-between text-xs">
-                    <span class="text-neutral-200 font-medium"><strong class="text-amber-400 mr-1.5">${item.quantity}x</strong> ${item.product_name}</span>
-                    <span class="text-[10px] text-neutral-400">${item.notes || ''}</span>
+                  <div class="text-xs pb-1.5 border-b border-white/[0.03]">
+                    <div class="flex items-center justify-between">
+                      <span class="text-neutral-200 font-bold"><strong class="text-amber-400 mr-1">${item.quantity}x</strong> ${item.product_name}</span>
+                      <span class="font-mono text-neutral-400 text-[11px]">${parseFloat(item.unit_price).toFixed(2)} ₺</span>
+                    </div>
+                    ${item.notes ? `<div class="text-[10px] text-amber-300/90 pl-5 mt-0.5 font-medium">↳ ${item.notes}</div>` : ''}
                   </div>
                 `).join('')}
               </div>
@@ -831,6 +1073,121 @@
       fetchKitchenData();
     }
 
+    // ================= POS & MASA YÖNETİMİ (KASA) =================
+    async function renderPosView() {
+      const container = document.getElementById('pos-tables-grid');
+      
+      try {
+        // Aktif tamamlanmamış siparişler ve hesap çağrıları
+        const [ordersRes, callsRes] = await Promise.all([
+          supabaseClient.from('orders').select('*').neq('status', 'completed'),
+          supabaseClient.from('service_calls').select('*').eq('is_resolved', false)
+        ]);
+
+        const activeOrders = ordersRes.data || [];
+        const activeCalls = callsRes.data || [];
+
+        container.innerHTML = [1, 2, 3, 4, 5].map(tNum => {
+          const tableOrders = activeOrders.filter(o => o.table_number === tNum);
+          const tableTotal = tableOrders.reduce((acc, o) => acc + parseFloat(o.total_amount), 0);
+          const hasBillCall = activeCalls.some(c => c.table_number === tNum && c.call_type !== 'waiter');
+          const isOccupied = tableOrders.length > 0;
+
+          return `
+            <div class="glass-card rounded-2xl p-4 flex flex-col justify-between ${hasBillCall ? 'border-amber-500/60 glow-amber' : (isOccupied ? 'border-emerald-500/40' : 'border-white/5 opacity-75')}">
+              <div>
+                <div class="flex items-center justify-between mb-3">
+                  <span class="text-sm font-black text-white px-2.5 py-1 rounded-lg ${isOccupied ? 'bg-emerald-500/20 text-emerald-300' : 'bg-white/5 text-neutral-400'}">
+                    MASA 0${tNum}
+                  </span>
+                  ${hasBillCall ? `
+                    <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-amber-500 text-black animate-pulse">HESAP İSTENDİ</span>
+                  ` : (isOccupied ? `
+                    <span class="px-2 py-0.5 rounded-full text-[9px] font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Dolu</span>
+                  ` : `
+                    <span class="px-2 py-0.5 rounded-full text-[9px] font-medium bg-white/5 text-neutral-400">Boş</span>
+                  `)}
+                </div>
+
+                <div class="my-4">
+                  <div class="text-[10px] text-neutral-400 uppercase font-mono">Açık Adisyon</div>
+                  <div class="text-xl font-bold font-mono ${tableTotal > 0 ? 'text-white' : 'text-neutral-500'}">${tableTotal.toFixed(2)} ₺</div>
+                  <div class="text-[11px] text-neutral-400 mt-0.5">${tableOrders.length} aktif sipariş kaydı</div>
+                </div>
+              </div>
+
+              ${isOccupied ? `
+                <button onclick="checkoutTable(${tNum})" class="w-full py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-bold transition flex items-center justify-center gap-1 shadow-sm">
+                  <i data-lucide="check" class="w-3.5 h-3.5"></i> Ödeme Al & Kapat
+                </button>
+              ` : `
+                <button disabled class="w-full py-2 rounded-xl bg-white/5 text-neutral-600 text-xs font-medium cursor-not-allowed">
+                  Masa Boş
+                </button>
+              `}
+            </div>
+          `;
+        }).join('');
+        lucide.createIcons();
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    async function checkoutTable(tableNum) {
+      if (!confirm(`Masa 0${tableNum} için ödeme tahsil edildi mi? Masa kapatılacak.`)) return;
+
+      try {
+        // Masanın siparişlerini completed yap
+        await supabaseClient.from('orders').update({ status: 'completed' }).eq('table_number', tableNum).neq('status', 'completed');
+        // Varsa masa çağrılarını kapat
+        await supabaseClient.from('service_calls').update({ is_resolved: true }).eq('table_number', tableNum);
+
+        showToast(`Masa 0${tableNum} hesabı kapatıldı. Masa boşaltıldı.`);
+        renderPosView();
+      } catch (e) {
+        showToast('Tahsilat işlemi yapılamadı.');
+      }
+    }
+
+    // ================= ANALYTICS DASHBOARD =================
+    async function loadAnalyticsDashboard() {
+      try {
+        const { data: orders } = await supabaseClient.from('orders').select('*, order_items(*)');
+        if (!orders) return;
+
+        // Toplam ciro
+        const totalRev = orders.filter(o => o.status === 'completed').reduce((acc, o) => acc + parseFloat(o.total_amount), 0);
+        document.getElementById('stat-total-revenue').innerText = totalRev.toFixed(2) + ' ₺';
+        document.getElementById('stat-total-orders').innerText = orders.length;
+
+        // Aktif masalar
+        const activeTables = new Set(orders.filter(o => o.status !== 'completed').map(o => o.table_number));
+        document.getElementById('stat-active-tables').innerText = `${activeTables.size} / 5`;
+
+        // En çok satan ürün
+        const counts = {};
+        orders.forEach(o => {
+          (o.order_items || []).forEach(it => {
+            counts[it.product_name] = (counts[it.product_name] || 0) + it.quantity;
+          });
+        });
+
+        let topProd = '-';
+        let topCount = 0;
+        for (const [name, qty] of Object.entries(counts)) {
+          if (qty > topCount) {
+            topCount = qty;
+            topProd = name;
+          }
+        }
+        document.getElementById('stat-top-product').innerText = topProd;
+        document.getElementById('stat-top-count').innerText = topCount > 0 ? `${topCount} adet satıldı` : 'Henüz veri yok';
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
     // ================= REALTIME SUBSCRIPTIONS =================
     function setupRealtimeSubscriptions() {
       supabaseClient
@@ -839,17 +1196,20 @@
           playKitchenBell();
           showToast(`🔔 Yeni Sipariş: Masa ${payload.new.table_number}!`);
           fetchKitchenData();
+          renderPosView();
         })
         .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'orders' }, payload => {
           if (payload.new.id === activeCustomerOrderId && payload.new.table_number === currentTable) {
             updateCustomerOrderTracker(payload.new.status, payload.new.id);
           }
           fetchKitchenData();
+          renderPosView();
         })
         .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'service_calls' }, payload => {
           playKitchenBell();
           showToast(`⚠️ Masa ${payload.new.table_number} çağrıda bulundu!`);
           fetchKitchenData();
+          renderPosView();
         })
         .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, () => {
           loadCategoriesAndProducts();
@@ -875,10 +1235,12 @@
       const pin = document.getElementById('admin-pin-input').value;
       if (pin === '1234') {
         closeAdminAuthModal();
+        // Müşteri modundaysa üst barı yetkiliye aç
+        document.getElementById('staff-navigation').classList.remove('hidden');
         switchView('admin');
-        showToast('🔑 Yönetici erişimi onaylandı.');
+        showToast('🔑 Yetkili girişi sağlandı.');
       } else {
-        alert('Hatalı PIN Kodu! (Varsayılan PIN: 1234)');
+        alert('Hatalı PIN Kodu! (Varsayılan: 1234)');
       }
     }
 
@@ -946,7 +1308,7 @@
     }
 
     async function deleteProduct(id) {
-      if (!confirm('Bu ürünü menüden tamamen silmek istediğinize emin misiniz?')) return;
+      if (!confirm('Bu ürünü silmek istediğinize emin misiniz?')) return;
       try {
         await supabaseClient.from('products').delete().eq('id', id);
         showToast('Ürün silindi.');
@@ -1008,6 +1370,7 @@
       const baseUrl = window.location.origin + window.location.pathname;
 
       [1, 2, 3, 4, 5].forEach(tableNum => {
+        // QR kod doğrudan masa parametresiyle oluşturulur (müşteri modunu tetikler)
         const tableUrl = `${baseUrl}?table=${tableNum}`;
         const card = document.createElement('div');
         card.className = "glass-card rounded-3xl p-6 text-center border border-white/10 flex flex-col items-center shadow-xl";
